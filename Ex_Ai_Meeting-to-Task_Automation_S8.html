@@ -1,0 +1,464 @@
+
+<h2 class="sr-only">Section 9: Meetings to Notes to Tasks — automated meeting processing pipeline</h2>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font-sans, system-ui, sans-serif); }
+  .shell { background: #111; border: 1px solid #222; }
+  .topbar { background: #181818; border-bottom: 1px solid #222; padding: 8px 14px; display: flex; align-items: center; justify-content: space-between; }
+  .topbar-left { display: flex; align-items: center; gap: 10px; }
+  .dot { width: 7px; height: 7px; border-radius: 50%; background: #2e2e2e; display: inline-block; }
+  .topbar-title { font-size: 11px; color: #555; letter-spacing: 0.06em; }
+  .topbar-badge { font-size: 9px; color: #d07010; background: #1a1000; border: 1px solid #2e1c00; padding: 3px 8px; letter-spacing: 0.06em; }
+  .prompt-strip { background: #0f0f0f; border-bottom: 1px solid #1e1e1e; padding: 10px 14px; font-size: 11px; color: #555; font-family: 'Courier New', monospace; line-height: 1.6; }
+  .prompt-label { font-size: 9px; color: #d07010; letter-spacing: 0.1em; margin-bottom: 4px; font-family: var(--font-sans); font-weight: 500; }
+
+  /* PIPELINE STEPS */
+  .pipeline { display: flex; align-items: stretch; border-bottom: 1px solid #1a1a1a; overflow-x: auto; }
+  .pipe-step { flex: 1; min-width: 100px; padding: 10px 14px; display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; border-right: 1px solid #1a1a1a; border-bottom: 3px solid transparent; transition: all 0.15s; background: #141414; }
+  .pipe-step:last-child { border-right: none; }
+  .pipe-step:hover { background: #161616; }
+  .pipe-step.active { background: #111; border-bottom-color: #d07010; }
+  .pipe-num { font-size: 9px; color: #2e2e2e; font-family: 'Courier New', monospace; }
+  .pipe-step.active .pipe-num { color: #d07010; }
+  .pipe-label { font-size: 10px; color: #444; letter-spacing: 0.04em; text-align: center; line-height: 1.3; }
+  .pipe-step.active .pipe-label { color: #c8c8c8; }
+  .pipe-tool { font-size: 9px; color: #2a2a2a; margin-top: 2px; }
+  .pipe-step.active .pipe-tool { color: #555; }
+
+  .panel { display: none; }
+  .panel.active { display: block; }
+  .section-header { background: #141414; border-bottom: 1px solid #1e1e1e; padding: 8px 16px; display: flex; align-items: center; justify-content: space-between; }
+  .section-title { font-size: 10px; color: #666; letter-spacing: 0.06em; }
+  .badge { font-size: 9px; color: #d07010; background: #1a1000; border: 1px solid #2e1c00; padding: 3px 8px; letter-spacing: 0.06em; }
+
+  /* TRANSCRIPT */
+  .transcript-wrap { padding: 16px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .transcript-col { display: flex; flex-direction: column; gap: 8px; }
+  .col-label { font-size: 9px; color: #333; letter-spacing: 0.1em; margin-bottom: 4px; }
+  .meet-chrome { background: #181818; border: 1px solid #222; padding: 6px 10px; display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+  .meet-chrome span { font-size: 10px; color: #444; }
+  .meet-rec { width: 6px; height: 6px; border-radius: 50%; background: #a04030; margin-left: auto; animation: pulse 1.5s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.4;} }
+  .transcript-body { background: #0f0f0f; border: 1px solid #1a1a1a; padding: 12px; font-size: 10px; color: #555; font-family: 'Courier New', monospace; line-height: 1.9; max-height: 280px; overflow-y: auto; }
+  .t-speaker { color: #d07010; }
+  .t-time { color: #2a2a2a; margin-right: 4px; }
+  .t-text { color: #666; }
+  .t-highlight { color: #888; }
+
+  /* SUMMARY */
+  .summary-wrap { padding: 16px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .summary-card { background: #0f0f0f; border: 1px solid #1a1a1a; }
+  .summary-card-header { padding: 8px 12px; border-bottom: 1px solid #1a1a1a; display: flex; align-items: center; justify-content: space-between; }
+  .summary-card-title { font-size: 9px; color: #444; letter-spacing: 0.1em; }
+  .summary-card-badge { font-size: 9px; color: #d07010; }
+  .summary-card-body { padding: 12px; }
+  .summary-line { font-size: 11px; color: #888; line-height: 1.6; padding: 5px 0; border-bottom: 1px solid #161616; display: flex; align-items: flex-start; gap: 7px; }
+  .summary-line:last-child { border: none; }
+  .summary-line::before { content: ">"; color: #333; font-family: monospace; flex-shrink: 0; margin-top: 1px; }
+  .summary-line .hi { color: #c8c8c8; }
+  .summary-line .org { color: #d07010; }
+  .decision-line { font-size: 11px; color: #888; line-height: 1.6; padding: 5px 0; border-bottom: 1px solid #161616; }
+  .decision-line:last-child { border: none; }
+  .decision-line .hi { color: #c8c8c8; }
+
+  /* TASKS */
+  .tasks-wrap { padding: 16px; }
+  .tasks-header-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .tasks-title { font-size: 9px; color: #444; letter-spacing: 0.1em; }
+  .tasks-meta { font-size: 9px; color: #555; }
+  .task-list { display: flex; flex-direction: column; gap: 6px; }
+  .task-item { background: #0f0f0f; border: 1px solid #1a1a1a; padding: 10px 12px; display: grid; grid-template-columns: 20px 1fr auto; gap: 10px; align-items: start; }
+  .task-check { width: 14px; height: 14px; border: 1px solid #2a2a2a; margin-top: 2px; flex-shrink: 0; }
+  .task-body { }
+  .task-title { font-size: 12px; color: #c8c8c8; margin-bottom: 3px; line-height: 1.4; }
+  .task-desc { font-size: 10px; color: #555; line-height: 1.5; }
+  .task-meta { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; flex-shrink: 0; }
+  .task-owner { font-size: 9px; color: #c8c8c8; background: #1a1a1a; border: 1px solid #222; padding: 2px 8px; white-space: nowrap; }
+  .task-due { font-size: 9px; color: #555; white-space: nowrap; }
+  .task-priority { font-size: 9px; padding: 2px 7px; }
+  .task-priority.high { color: #c04020; background: #1a0800; border: 1px solid #3a1400; }
+  .task-priority.med { color: #d07010; background: #1a1000; border: 1px solid #3a2000; }
+  .task-priority.low { color: #555; background: #161616; border: 1px solid #222; }
+
+  /* NOTIFICATIONS */
+  .notif-wrap { padding: 16px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .notif-col-label { font-size: 9px; color: #333; letter-spacing: 0.1em; margin-bottom: 8px; }
+  .notif-card { background: #0f0f0f; border: 1px solid #1a1a1a; margin-bottom: 6px; }
+  .notif-header { padding: 6px 10px; border-bottom: 1px solid #1a1a1a; display: flex; align-items: center; gap: 6px; }
+  .notif-app { font-size: 9px; color: #555; letter-spacing: 0.06em; }
+  .notif-app-badge { font-size: 8px; color: #d07010; background: #1a1000; border: 1px solid #2e1c00; padding: 1px 5px; margin-left: auto; }
+  .notif-body { padding: 10px; }
+  .notif-name { font-size: 10px; color: #888; margin-bottom: 4px; }
+  .notif-name span { color: #c8c8c8; }
+  .notif-text { font-size: 11px; color: #666; line-height: 1.55; }
+  .notif-text .hi { color: #c8c8c8; }
+  .notif-text .org { color: #d07010; }
+  .notif-time { font-size: 9px; color: #2a2a2a; margin-top: 5px; }
+  .asana-card { background: #0f0f0f; border: 1px solid #1a1a1a; }
+  .asana-header { padding: 6px 10px; border-bottom: 1px solid #1a1a1a; display: flex; align-items: center; justify-content: space-between; }
+  .asana-title { font-size: 9px; color: #555; letter-spacing: 0.06em; }
+  .asana-row { padding: 8px 10px; border-bottom: 1px solid #141414; display: flex; align-items: center; gap: 8px; }
+  .asana-row:last-child { border: none; }
+  .asana-check { width: 11px; height: 11px; border: 1px solid #2a2a2a; flex-shrink: 0; }
+  .asana-task { font-size: 10px; color: #777; flex: 1; }
+  .asana-assignee { font-size: 9px; color: #444; }
+  .asana-due { font-size: 9px; color: #555; }
+</style>
+
+<div class="shell">
+  <div class="topbar">
+    <div class="topbar-left">
+      <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+      <span class="topbar-title">MEETING TO TASKS PIPELINE · AI AUTOMATED</span>
+    </div>
+    <span class="topbar-badge">Q4 PLANNING CALL</span>
+  </div>
+
+  <div class="prompt-strip">
+    <div class="prompt-label">AI PROMPT</div>
+    Transcribe this meeting, summarize the key points and decisions, extract all action items with owners and due dates, create tasks in Asana, and notify each owner in Slack.
+  </div>
+
+  <div class="pipeline">
+    <div class="pipe-step active" onclick="showStep('transcript',this)">
+      <div class="pipe-num">01</div>
+      <div class="pipe-label">Meeting Recording</div>
+      <div class="pipe-tool">Zoom · Fireflies</div>
+    </div>
+    <div class="pipe-step" onclick="showStep('summary',this)">
+      <div class="pipe-num">02</div>
+      <div class="pipe-label">AI Summary</div>
+      <div class="pipe-tool">Claude · ChatGPT</div>
+    </div>
+    <div class="pipe-step" onclick="showStep('tasks',this)">
+      <div class="pipe-num">03</div>
+      <div class="pipe-label">Task Extraction</div>
+      <div class="pipe-tool">Claude · Asana</div>
+    </div>
+    <div class="pipe-step" onclick="showStep('notify',this)">
+      <div class="pipe-num">04</div>
+      <div class="pipe-label">Notify Owners</div>
+      <div class="pipe-tool">Slack · Asana</div>
+    </div>
+  </div>
+
+  <!-- STEP 1: TRANSCRIPT -->
+  <div id="transcript" class="panel active">
+    <div class="section-header">
+      <span class="section-title">RAW TRANSCRIPT · Q4 PIPELINE AND CAMPAIGN PLANNING · 47 MIN</span>
+      <span class="badge">RECORDED</span>
+    </div>
+    <div class="transcript-wrap">
+      <div class="transcript-col">
+        <div class="col-label">MEETING RECORDING</div>
+        <div class="meet-chrome">
+          <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+          <span style="margin-left:6px;">Q4 Planning · Marketing Team · 9 attendees</span>
+          <div class="meet-rec"></div>
+        </div>
+        <div style="background:#141414;border:1px solid #1e1e1e;padding:14px;font-size:11px;color:#555;line-height:1.7;">
+          <div style="margin-bottom:8px;font-size:9px;color:#333;letter-spacing:0.08em;">MEETING DETAILS</div>
+          <div style="display:flex;flex-direction:column;gap:5px;">
+            <div style="display:flex;gap:10px;"><span style="color:#2e2e2e;width:70px;flex-shrink:0;font-family:'Courier New',monospace;font-size:10px;">Date</span><span style="font-size:10px;color:#666;">Thursday, Oct 3 2025</span></div>
+            <div style="display:flex;gap:10px;"><span style="color:#2e2e2e;width:70px;flex-shrink:0;font-family:'Courier New',monospace;font-size:10px;">Duration</span><span style="font-size:10px;color:#666;">47 minutes</span></div>
+            <div style="display:flex;gap:10px;"><span style="color:#2e2e2e;width:70px;flex-shrink:0;font-family:'Courier New',monospace;font-size:10px;">Attendees</span><span style="font-size:10px;color:#666;">Sarah, Marcus, Jess, Tyler, Priya, Dan, Lena, Will, Cam</span></div>
+            <div style="display:flex;gap:10px;"><span style="color:#2e2e2e;width:70px;flex-shrink:0;font-family:'Courier New',monospace;font-size:10px;">Platform</span><span style="font-size:10px;color:#666;">Zoom · Fireflies transcription active</span></div>
+            <div style="display:flex;gap:10px;"><span style="color:#2e2e2e;width:70px;flex-shrink:0;font-family:'Courier New',monospace;font-size:10px;">Topics</span><span style="font-size:10px;color:#666;">Q4 campaign plan, budget review, referral program, email retarget, paid social</span></div>
+          </div>
+          <div style="margin-top:12px;padding-top:10px;border-top:1px solid #1a1a1a;font-size:9px;color:#2a2a2a;letter-spacing:0.06em;">FIREFLIES AI TRANSCRIPTION COMPLETE · 8,340 WORDS</div>
+        </div>
+      </div>
+      <div class="transcript-col">
+        <div class="col-label">RAW TRANSCRIPT EXCERPT</div>
+        <div class="transcript-body">
+<span class="t-time">00:03</span><span class="t-speaker">Sarah:</span> <span class="t-text">Okay so let's just jump in. Q4 is tight, we have like ten weeks and I want to make sure everyone knows what they own before we leave this call.</span><br><br>
+<span class="t-time">00:41</span><span class="t-speaker">Marcus:</span> <span class="t-text">Yeah totally. I think the biggest thing for me is the referral program. We talked about it in September and nothing happened. We need to actually launch it this quarter or it is not happening this year.</span><br><br>
+<span class="t-time">01:12</span><span class="t-speaker">Sarah:</span> <span class="t-text">Agreed. <span class="t-highlight">Marcus can you own the referral brief by end of next week?</span> Like a one-pager with the incentive structure, the ask, and the target contacts.</span><br><br>
+<span class="t-time">01:28</span><span class="t-speaker">Marcus:</span> <span class="t-text">Yeah I can do that. Oct 11 works.</span><br><br>
+<span class="t-time">02:05</span><span class="t-speaker">Jess:</span> <span class="t-text">What about the email reactivation? We have like 2,400 contacts that have not engaged in 90 days. <span class="t-highlight">I can write the sequence but I need the segmentation done first.</span></span><br><br>
+<span class="t-time">02:34</span><span class="t-speaker">Tyler:</span> <span class="t-text">I can pull the segment from HubSpot. Give me two days.</span><br><br>
+<span class="t-time">03:01</span><span class="t-speaker">Sarah:</span> <span class="t-text">Perfect. So Tyler does segmentation by Oct 7, Jess writes the sequence after that, <span class="t-highlight">and we want this live by Oct 21 at the latest.</span></span><br><br>
+<span class="t-time">04:18</span><span class="t-speaker">Priya:</span> <span class="t-text">I want to flag the paid social budget. We have 40K left for Q4 and I think we should split it 60/40 between LinkedIn and Meta rather than the current even split.</span><br><br>
+<span class="t-time">04:52</span><span class="t-speaker">Dan:</span> <span class="t-text">Agreed, LinkedIn is converting better. <span class="t-highlight">Priya, can you put together a revised budget split and get sign-off from Sarah by Friday?</span></span><br><br>
+<span class="t-time">05:20</span><span class="t-speaker">Priya:</span> <span class="t-text">On it.</span><br><br>
+<span class="t-time">06:44</span><span class="t-speaker">Lena:</span> <span class="t-text">One more thing. The landing page for the demo request is still the old one. Conversion rate is terrible. <span class="t-highlight">Someone needs to own a new version before any paid goes live in Q4.</span></span><br><br>
+<span class="t-time">07:02</span><span class="t-speaker">Will:</span> <span class="t-text">I can take that. I will have a mockup ready by Oct 10.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 2: SUMMARY -->
+  <div id="summary" class="panel">
+    <div class="section-header">
+      <span class="section-title">AI GENERATED SUMMARY · Q4 PLANNING CALL · OCT 3 2025</span>
+      <span class="badge">AI PROCESSED</span>
+    </div>
+    <div class="summary-wrap">
+      <div>
+        <div class="summary-card">
+          <div class="summary-card-header">
+            <span class="summary-card-title">KEY POINTS</span>
+            <span class="summary-card-badge">5 TOPICS</span>
+          </div>
+          <div class="summary-card-body">
+            <div class="summary-line">Q4 has <span class="hi">10 weeks</span> of runway. Team aligned on the need for clear ownership before the call ended.</div>
+            <div class="summary-line"><span class="hi">Referral program</span> has stalled since September. Agreed to launch this quarter with Marcus owning the brief.</div>
+            <div class="summary-line"><span class="hi">Email reactivation</span> targeting 2,400 dormant contacts. Tyler owns segmentation, Jess owns sequence copy. Live date Oct 21.</div>
+            <div class="summary-line"><span class="hi">Paid social budget</span> of $40K to be rebalanced 60/40 toward LinkedIn based on stronger conversion data. Priya to confirm split with Sarah by Friday.</div>
+            <div class="summary-line"><span class="hi">Demo request landing page</span> flagged as underperforming. Will owns a new mockup by Oct 10 before any paid traffic is sent.</div>
+          </div>
+        </div>
+        <div class="summary-card" style="margin-top:10px;">
+          <div class="summary-card-header">
+            <span class="summary-card-title">DECISIONS MADE</span>
+            <span class="summary-card-badge">3 CONFIRMED</span>
+          </div>
+          <div class="summary-card-body">
+            <div class="decision-line"><span class="hi">Referral program launches Q4.</span> Marcus owns the brief. No further delay.</div>
+            <div class="decision-line"><span class="hi">Email reactivation sequence goes live by Oct 21.</span> Tyler and Jess in sequence.</div>
+            <div class="decision-line"><span class="hi">No paid social runs until landing page is updated.</span> Will delivers mockup Oct 10.</div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="summary-card">
+          <div class="summary-card-header">
+            <span class="summary-card-title">ACTION ITEMS DETECTED</span>
+            <span class="summary-card-badge">6 TASKS</span>
+          </div>
+          <div class="summary-card-body">
+            <div style="display:flex;flex-direction:column;gap:6px;">
+              <div style="background:#111;border:1px solid #1e1e1e;padding:8px 10px;">
+                <div style="font-size:10px;color:#c8c8c8;margin-bottom:3px;">Referral program brief</div>
+                <div style="font-size:9px;color:#555;">Owner: <span style="color:#888;">Marcus</span> · Due: Oct 11</div>
+              </div>
+              <div style="background:#111;border:1px solid #1e1e1e;padding:8px 10px;">
+                <div style="font-size:10px;color:#c8c8c8;margin-bottom:3px;">HubSpot dormant contact segment</div>
+                <div style="font-size:9px;color:#555;">Owner: <span style="color:#888;">Tyler</span> · Due: Oct 7</div>
+              </div>
+              <div style="background:#111;border:1px solid #1e1e1e;padding:8px 10px;">
+                <div style="font-size:10px;color:#c8c8c8;margin-bottom:3px;">Reactivation email sequence</div>
+                <div style="font-size:9px;color:#555;">Owner: <span style="color:#888;">Jess</span> · Due: Oct 14</div>
+              </div>
+              <div style="background:#111;border:1px solid #1e1e1e;padding:8px 10px;">
+                <div style="font-size:10px;color:#c8c8c8;margin-bottom:3px;">Paid social budget split proposal</div>
+                <div style="font-size:9px;color:#555;">Owner: <span style="color:#888;">Priya</span> · Due: Oct 6</div>
+              </div>
+              <div style="background:#111;border:1px solid #1e1e1e;padding:8px 10px;">
+                <div style="font-size:10px;color:#c8c8c8;margin-bottom:3px;">Demo landing page mockup</div>
+                <div style="font-size:9px;color:#555;">Owner: <span style="color:#888;">Will</span> · Due: Oct 10</div>
+              </div>
+              <div style="background:#111;border:1px solid #1e1e1e;padding:8px 10px;">
+                <div style="font-size:10px;color:#c8c8c8;margin-bottom:3px;">Email campaign launch</div>
+                <div style="font-size:9px;color:#555;">Owner: <span style="color:#888;">Jess</span> · Due: Oct 21</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 3: TASKS -->
+  <div id="tasks" class="panel">
+    <div class="section-header">
+      <span class="section-title">TASKS CREATED IN ASANA · Q4 PLANNING · OCT 3 2025</span>
+      <span class="badge">6 TASKS CREATED</span>
+    </div>
+    <div class="tasks-wrap">
+      <div class="tasks-header-row">
+        <div class="tasks-title">PROJECT: Q4 MARKETING SPRINT · ASSIGNED AUTOMATICALLY</div>
+        <div class="tasks-meta">Created 4 min after meeting ended</div>
+      </div>
+      <div class="task-list">
+        <div class="task-item">
+          <div class="task-check"></div>
+          <div class="task-body">
+            <div class="task-title">Write referral program brief</div>
+            <div class="task-desc">One-pager covering incentive structure, the ask, and target contacts. Based on discussion from Q4 planning call.</div>
+          </div>
+          <div class="task-meta">
+            <div class="task-owner">Marcus</div>
+            <div class="task-priority high">HIGH</div>
+            <div class="task-due">Due Oct 11</div>
+          </div>
+        </div>
+        <div class="task-item">
+          <div class="task-check"></div>
+          <div class="task-body">
+            <div class="task-title">Pull dormant contact segment from HubSpot</div>
+            <div class="task-desc">Contacts with no engagement in 90 or more days. Approx 2,400 records. Needed before Jess can start email copy.</div>
+          </div>
+          <div class="task-meta">
+            <div class="task-owner">Tyler</div>
+            <div class="task-priority high">HIGH</div>
+            <div class="task-due">Due Oct 7</div>
+          </div>
+        </div>
+        <div class="task-item">
+          <div class="task-check"></div>
+          <div class="task-body">
+            <div class="task-title">Write reactivation email sequence</div>
+            <div class="task-desc">3-email sequence for dormant contacts. Blocked on Tyler completing segmentation first. Target live date Oct 21.</div>
+          </div>
+          <div class="task-meta">
+            <div class="task-owner">Jess</div>
+            <div class="task-priority med">MED</div>
+            <div class="task-due">Due Oct 14</div>
+          </div>
+        </div>
+        <div class="task-item">
+          <div class="task-check"></div>
+          <div class="task-body">
+            <div class="task-title">Revised paid social budget split proposal</div>
+            <div class="task-desc">Recommend 60/40 LinkedIn to Meta split for $40K Q4 budget. Get sign-off from Sarah by Friday Oct 6.</div>
+          </div>
+          <div class="task-meta">
+            <div class="task-owner">Priya</div>
+            <div class="task-priority high">HIGH</div>
+            <div class="task-due">Due Oct 6</div>
+          </div>
+        </div>
+        <div class="task-item">
+          <div class="task-check"></div>
+          <div class="task-body">
+            <div class="task-title">New demo request landing page mockup</div>
+            <div class="task-desc">Current page conversion rate is underperforming. No paid social launches until this is updated and approved.</div>
+          </div>
+          <div class="task-meta">
+            <div class="task-owner">Will</div>
+            <div class="task-priority high">HIGH</div>
+            <div class="task-due">Due Oct 10</div>
+          </div>
+        </div>
+        <div class="task-item">
+          <div class="task-check"></div>
+          <div class="task-body">
+            <div class="task-title">Launch email reactivation campaign</div>
+            <div class="task-desc">Final send after segmentation and sequence are approved. Blocked on two prior tasks completing.</div>
+          </div>
+          <div class="task-meta">
+            <div class="task-owner">Jess</div>
+            <div class="task-priority med">MED</div>
+            <div class="task-due">Due Oct 21</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 4: NOTIFY -->
+  <div id="notify" class="panel">
+    <div class="section-header">
+      <span class="section-title">OWNERS NOTIFIED · SLACK AND ASANA · AUTOMATED</span>
+      <span class="badge">SENT AUTOMATICALLY</span>
+    </div>
+    <div class="notif-wrap">
+      <div>
+        <div class="notif-col-label">SLACK NOTIFICATIONS</div>
+        <div class="notif-card">
+          <div class="notif-header">
+            <div class="dot" style="background:#4a8;"></div>
+            <span class="notif-app">SLACK · DIRECT MESSAGE</span>
+            <span class="notif-app-badge">AI SENT</span>
+          </div>
+          <div class="notif-body">
+            <div class="notif-name">To: <span>Marcus</span></div>
+            <div class="notif-text">Hey Marcus, you were assigned a task from today's Q4 planning call: <span class="hi">Write the referral program brief</span>. Due <span class="org">Oct 11</span>. One-pager covering incentive structure, the ask, and target contacts. Task is in Asana under Q4 Marketing Sprint.</div>
+            <div class="notif-time">Sent 4 min after call ended</div>
+          </div>
+        </div>
+        <div class="notif-card" style="margin-top:6px;">
+          <div class="notif-header">
+            <div class="dot" style="background:#4a8;"></div>
+            <span class="notif-app">SLACK · DIRECT MESSAGE</span>
+            <span class="notif-app-badge">AI SENT</span>
+          </div>
+          <div class="notif-body">
+            <div class="notif-name">To: <span>Tyler</span></div>
+            <div class="notif-text">Hey Tyler, you are on the hook for the <span class="hi">HubSpot dormant segment</span> by <span class="org">Oct 7</span>. Jess is blocked on you for the email sequence so this one is time-sensitive. Task is ready in Asana.</div>
+            <div class="notif-time">Sent 4 min after call ended</div>
+          </div>
+        </div>
+        <div class="notif-card" style="margin-top:6px;">
+          <div class="notif-header">
+            <div class="dot" style="background:#4a8;"></div>
+            <span class="notif-app">SLACK · DIRECT MESSAGE</span>
+            <span class="notif-app-badge">AI SENT</span>
+          </div>
+          <div class="notif-body">
+            <div class="notif-name">To: <span>Priya</span></div>
+            <div class="notif-text">Hey Priya, your task from today's call: <span class="hi">revised paid social budget split</span> for Sarah's sign-off. Due <span class="org">Friday Oct 6</span>. Recommend 60/40 LinkedIn to Meta per the discussion. Task is in Asana.</div>
+            <div class="notif-time">Sent 4 min after call ended</div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="notif-col-label">ASANA PROJECT UPDATED</div>
+        <div class="asana-card">
+          <div class="asana-header">
+            <span class="asana-title">Q4 MARKETING SPRINT · 6 TASKS · 5 OWNERS</span>
+            <span style="font-size:9px;color:#d07010;">JUST UPDATED</span>
+          </div>
+          <div class="asana-row">
+            <div class="asana-check"></div>
+            <div class="asana-task">Referral program brief</div>
+            <div class="asana-assignee">Marcus</div>
+            <div class="asana-due">Oct 11</div>
+          </div>
+          <div class="asana-row">
+            <div class="asana-check"></div>
+            <div class="asana-task">HubSpot dormant segment</div>
+            <div class="asana-assignee">Tyler</div>
+            <div class="asana-due" style="color:#c04020;">Oct 7</div>
+          </div>
+          <div class="asana-row">
+            <div class="asana-check"></div>
+            <div class="asana-task">Reactivation email sequence</div>
+            <div class="asana-assignee">Jess</div>
+            <div class="asana-due">Oct 14</div>
+          </div>
+          <div class="asana-row">
+            <div class="asana-check"></div>
+            <div class="asana-task">Paid social budget split</div>
+            <div class="asana-assignee">Priya</div>
+            <div class="asana-due" style="color:#c04020;">Oct 6</div>
+          </div>
+          <div class="asana-row">
+            <div class="asana-check"></div>
+            <div class="asana-task">Demo landing page mockup</div>
+            <div class="asana-assignee">Will</div>
+            <div class="asana-due">Oct 10</div>
+          </div>
+          <div class="asana-row">
+            <div class="asana-check"></div>
+            <div class="asana-task">Email campaign launch</div>
+            <div class="asana-assignee">Jess</div>
+            <div class="asana-due">Oct 21</div>
+          </div>
+        </div>
+        <div style="margin-top:10px;background:#0f0f0f;border:1px solid #1a1a1a;padding:10px 12px;">
+          <div style="font-size:9px;color:#333;letter-spacing:0.08em;margin-bottom:6px;">WHAT HAPPENED AUTOMATICALLY</div>
+          <div style="display:flex;flex-direction:column;gap:5px;">
+            <div style="font-size:10px;color:#555;display:flex;gap:6px;"><span style="color:#d07010;font-family:monospace;">></span>Meeting transcribed in real time by Fireflies</div>
+            <div style="font-size:10px;color:#555;display:flex;gap:6px;"><span style="color:#d07010;font-family:monospace;">></span>Claude parsed transcript and extracted 6 action items</div>
+            <div style="font-size:10px;color:#555;display:flex;gap:6px;"><span style="color:#d07010;font-family:monospace;">></span>Tasks created in Asana with owners, due dates, and context</div>
+            <div style="font-size:10px;color:#555;display:flex;gap:6px;"><span style="color:#d07010;font-family:monospace;">></span>Each owner notified in Slack with task detail</div>
+            <div style="font-size:10px;color:#555;display:flex;gap:6px;"><span style="color:#d07010;font-family:monospace;">></span>Total time from meeting end to everyone notified: 4 minutes</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function showStep(id, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.pipe-step').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+}
+</script>

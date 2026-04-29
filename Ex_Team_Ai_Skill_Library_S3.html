@@ -1,0 +1,206 @@
+
+<h2 class="sr-only">Section 4: Shared Team Skills Library — selectable B2B skills with live preview</h2>
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  .shell { background: #111; border: 1px solid #222; font-family: var(--font-sans); }
+  .topbar { background: #181818; border-bottom: 1px solid #222; padding: 8px 14px; display: flex; align-items: center; justify-content: space-between; }
+  .topbar-left { display: flex; align-items: center; gap: 10px; }
+  .dot { width: 7px; height: 7px; border-radius: 50%; background: #2e2e2e; display: inline-block; }
+  .topbar-title { font-size: 11px; color: #555; letter-spacing: 0.06em; }
+  .topbar-badge { font-size: 9px; color: #d07010; background: #1a1000; border: 1px solid #2e1c00; padding: 3px 8px; letter-spacing: 0.06em; }
+  .tab-row { display: flex; border-bottom: 1px solid #2a2a2a; background: #141414; }
+  .tab { padding: 8px 18px; font-size: 11px; cursor: pointer; color: #555; background: #141414; border: 1px solid #333; border-bottom: none; margin-right: 2px; letter-spacing: 0.04em; }
+  .tab.active { background: #111; color: #c8c8c8; border-color: #d07010; border-bottom: 1px solid #111; }
+  .tab:hover { color: #c8c8c8; border-color: #d07010; }
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  .grid-wrap { padding: 16px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .card { background: #161616; border: 1px solid #222; padding: 12px 14px; cursor: pointer; transition: border-color 0.15s; }
+  .card:hover { border-color: #888; }
+  .card.active { border-color: #d07010; background: #161206; }
+  .card-tag { font-size: 9px; color: #444; letter-spacing: 0.08em; margin-bottom: 6px; }
+  .card-tag.lit { color: #d07010; }
+  .card-title { font-size: 12px; color: #c8c8c8; line-height: 1.4; margin-bottom: 6px; }
+  .card-meta { font-size: 10px; color: #3a3a3a; }
+  .grid-hint { padding: 0 16px 12px; font-size: 10px; color: #333; letter-spacing: 0.04em; }
+
+  .expand-header { background: #141414; border-bottom: 1px solid #1e1e1e; padding: 8px 16px; display: flex; align-items: center; justify-content: space-between; }
+  .expand-title { font-size: 10px; color: #888; letter-spacing: 0.06em; }
+  .expand-badge { font-size: 9px; color: #d07010; background: #1a1000; border: 1px solid #2e1c00; padding: 3px 8px; letter-spacing: 0.06em; }
+  .io-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: #1e1e1e; min-height: 380px; }
+  .io-col { background: #111; padding: 16px; }
+  .io-label { font-size: 9px; color: #444; letter-spacing: 0.1em; margin-bottom: 10px; }
+  .io-label.orange { color: #d07010; }
+  .prompt-box { background: #0f0f0f; border: 1px solid #1e1e1e; padding: 10px 12px; font-size: 11px; color: #777; font-family: 'Courier New', monospace; line-height: 1.8; }
+  .field { color: #d07010; }
+  .output-section { margin-bottom: 12px; }
+  .output-section-title { font-size: 9px; color: #555; letter-spacing: 0.08em; margin-bottom: 5px; border-bottom: 1px solid #1a1a1a; padding-bottom: 4px; }
+  .output-line { font-size: 11px; color: #999; line-height: 1.6; padding: 2px 0; }
+  .output-line::before { content: "> "; color: #333; font-family: monospace; }
+  .hi { color: #c8c8c8; }
+  .higreen { color: #4a9a5a; }
+  .hiorange { color: #d07010; }
+  .code-block { background: #0f0f0f; border: 1px solid #1e1e1e; padding: 10px 12px; font-family: 'Courier New', monospace; font-size: 10px; color: #666; line-height: 1.8; }
+  .c-key { color: #888; }
+  .c-str { color: #4a9a5a; }
+  .c-val { color: #c8c8c8; }
+  .c-tag { color: #555; }
+  .c-hi { color: #d07010; }
+</style>
+
+<div class="shell">
+  <div class="topbar">
+    <div class="topbar-left">
+      <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+      <span class="topbar-title">TEAM SKILLS LIBRARY · B2B MARKETING</span>
+    </div>
+    <span class="topbar-badge">9 SKILLS</span>
+  </div>
+
+  <div class="tab-row">
+    <div class="tab active" onclick="showTab('grid',this)">SKILLS LIBRARY</div>
+    <div class="tab" onclick="showTab('expanded',this)">SKILL PREVIEW</div>
+  </div>
+
+  <div id="grid" class="panel active">
+    <div class="grid-wrap">
+      <div class="card active" onclick="selectCard(this,0)"><div class="card-tag lit">CAMPAIGN</div><div class="card-title">B2B Campaign Brief</div><div class="card-meta">Input: product + ICP</div></div>
+      <div class="card" onclick="selectCard(this,1)"><div class="card-tag">EMAIL</div><div class="card-title">Cold Outreach Sequence</div><div class="card-meta">Input: persona + pain point</div></div>
+      <div class="card" onclick="selectCard(this,2)"><div class="card-tag">SEO</div><div class="card-title">Schema Markup · Location Pages</div><div class="card-meta">Input: business + location data</div></div>
+      <div class="card" onclick="selectCard(this,3)"><div class="card-tag">CONTENT</div><div class="card-title">Thought Leadership Article</div><div class="card-meta">Input: topic + audience role</div></div>
+      <div class="card" onclick="selectCard(this,4)"><div class="card-tag">AD COPY</div><div class="card-title">LinkedIn Ad Variations</div><div class="card-meta">Input: offer + job title target</div></div>
+      <div class="card" onclick="selectCard(this,5)"><div class="card-tag">REPORTING</div><div class="card-title">Pipeline Performance Summary</div><div class="card-meta">Input: dataset + period</div></div>
+      <div class="card" onclick="selectCard(this,6)"><div class="card-tag">CRM</div><div class="card-title">Deal Re-Engagement Email</div><div class="card-meta">Input: deal stage + last touch</div></div>
+      <div class="card" onclick="selectCard(this,7)"><div class="card-tag">SOCIAL</div><div class="card-title">LinkedIn Post from Case Study</div><div class="card-meta">Input: case study summary</div></div>
+      <div class="card" onclick="selectCard(this,8)"><div class="card-tag">EVENTS</div><div class="card-title">Webinar Promo Copy Pack</div><div class="card-meta">Input: topic + speaker + CTA</div></div>
+    </div>
+    <div class="grid-hint">Select a skill above, then open Skill Preview to see the full input and output.</div>
+  </div>
+
+  <div id="expanded" class="panel">
+    <div class="expand-header">
+      <span class="expand-title" id="expandTitle">B2B CAMPAIGN BRIEF · SKILL PREVIEW</span>
+      <span class="expand-badge">TEAM SKILL</span>
+    </div>
+    <div class="io-grid">
+      <div class="io-col">
+        <div class="io-label orange">SKILL PROMPT · INPUT</div>
+        <div class="prompt-box" id="promptBox"></div>
+      </div>
+      <div class="io-col">
+        <div class="io-label">AI OUTPUT · GENERATED</div>
+        <div id="outputBox"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const templates = [
+  {
+    title: "B2B CAMPAIGN BRIEF · SKILL PREVIEW",
+    prompt: `Generate a campaign brief for:<br><br>Product: <span class="field">[Fleet management software]</span><br>ICP: <span class="field">[VP Operations, 50-500 employee logistics companies]</span><br>Goal: <span class="field">[Drive demo requests]</span><br>Budget tier: <span class="field">[Mid-market]</span><br><br>Output:<br>- Objective<br>- Target audience<br>- Key messaging<br>- Recommended channels<br>- Primary CTA`,
+    output: `
+      <div class="output-section"><div class="output-section-title">OBJECTIVE</div><div class="output-line">Generate <span class="hi">qualified demo requests</span> from VP Ops at mid-market logistics firms</div></div>
+      <div class="output-section"><div class="output-section-title">TARGET AUDIENCE</div><div class="output-line">VP Operations, Director of Fleet at companies with <span class="hi">50 to 500 employees</span></div><div class="output-line">Industries: <span class="hi">logistics, distribution, field services</span></div></div>
+      <div class="output-section"><div class="output-section-title">KEY MESSAGING</div><div class="output-line">Reduce fleet downtime and fuel costs without adding headcount</div><div class="output-line">Real-time visibility across all vehicles from one dashboard</div><div class="output-line">ROI visible within <span class="hi">90 days</span> of deployment</div></div>
+      <div class="output-section"><div class="output-section-title">RECOMMENDED CHANNELS</div><div class="output-line"><span class="higreen">LinkedIn Ads</span> targeting by job title and company size</div><div class="output-line"><span class="higreen">Email</span> to existing CRM contacts in logistics vertical</div><div class="output-line"><span class="higreen">Referral</span> program with existing customers as advocates</div></div>
+      <div class="output-section"><div class="output-section-title">PRIMARY CTA</div><div class="output-line"><span class="hiorange">Book a 20-minute demo</span> · No commitment, live product walkthrough</div></div>`
+  },
+  {
+    title: "COLD OUTREACH SEQUENCE · SKILL PREVIEW",
+    prompt: `Generate a 3-email cold outreach sequence for:<br><br>Persona: <span class="field">[Head of IT, mid-size financial services firm]</span><br>Pain point: <span class="field">[Manual software provisioning slowing onboarding]</span><br>Tone: <span class="field">[Direct, no fluff]</span><br><br>Output:<br>- Email 1: Hook<br>- Email 2: Value<br>- Email 3: Breakup`,
+    output: `
+      <div class="output-section"><div class="output-section-title">EMAIL 1 · HOOK</div><div class="output-line">Subject: <span class="hi">IT onboarding at [Company] — quick question</span></div><div class="output-line">Most IT leads we talk to are still provisioning software manually. If that sounds familiar, worth a 15-min call.</div></div>
+      <div class="output-section"><div class="output-section-title">EMAIL 2 · VALUE</div><div class="output-line">Subject: <span class="hi">How [Similar Co] cut provisioning time by 60%</span></div><div class="output-line">They were running the same process. After deploying our platform, onboarding dropped from 4 days to 6 hours.</div></div>
+      <div class="output-section"><div class="output-section-title">EMAIL 3 · BREAKUP</div><div class="output-line">Subject: <span class="hi">Closing the loop</span></div><div class="output-line">Totally understand if the timing is off. I'll leave it here — if provisioning delays come up again, we're easy to find.</div></div>
+      <div class="output-section"><div class="output-section-title">CTA ACROSS ALL</div><div class="output-line"><span class="hiorange">15-minute call</span> · No deck, no pitch, just a quick conversation</div></div>`
+  },
+  {
+    title: "SCHEMA MARKUP · LOCATION PAGES · SKILL PREVIEW",
+    prompt: `Generate LocalBusiness schema markup for:<br><br>Business: <span class="field">[Acme Logistics Solutions]</span><br>Type: <span class="field">[FreightForwarder]</span><br>Location: <span class="field">[Dallas, TX]</span><br>Address: <span class="field">[4200 Commerce Dr, 75201]</span><br>Phone: <span class="field">[+1-214-555-0182]</span><br>Hours: <span class="field">[Mon-Fri 8am-6pm CST]</span><br>Services: <span class="field">[LTL freight, last-mile, warehousing]</span><br><br>Output JSON-LD ready to paste into page head.`,
+    output: `
+      <div class="output-section"><div class="output-section-title">JSON-LD SCHEMA · READY TO PASTE</div>
+      <div class="code-block"><span class="c-tag">&lt;script type="application/ld+json"&gt;</span><br>{<br>&nbsp;&nbsp;<span class="c-key">"@context"</span>: <span class="c-str">"https://schema.org"</span>,<br>&nbsp;&nbsp;<span class="c-key">"@type"</span>: <span class="c-str">"FreightForwarder"</span>,<br>&nbsp;&nbsp;<span class="c-key">"name"</span>: <span class="c-val">"Acme Logistics Solutions"</span>,<br>&nbsp;&nbsp;<span class="c-key">"address"</span>: {<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="c-key">"streetAddress"</span>: <span class="c-val">"4200 Commerce Dr"</span>,<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="c-key">"addressLocality"</span>: <span class="c-val">"Dallas"</span>,<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="c-key">"postalCode"</span>: <span class="c-val">"75201"</span><br>&nbsp;&nbsp;},<br>&nbsp;&nbsp;<span class="c-key">"telephone"</span>: <span class="c-val">"+1-214-555-0182"</span>,<br>&nbsp;&nbsp;<span class="c-key">"openingHours"</span>: <span class="c-val">"Mo-Fr 08:00-18:00"</span>,<br>&nbsp;&nbsp;<span class="c-key">"hasOfferCatalog"</span>: {<br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="c-key">"name"</span>: <span class="c-hi">"LTL Freight, Last-Mile, Warehousing"</span><br>&nbsp;&nbsp;}<br>}<br><span class="c-tag">&lt;/script&gt;</span></div></div>
+      <div class="output-section"><div class="output-section-title">NOTES</div><div class="output-line">Validated against <span class="hi">Google Rich Results</span> spec</div><div class="output-line">Repeat per location page with unique address and phone</div><div class="output-line"><span class="hiorange">areaServed</span> field can be added for regional targeting</div></div>`
+  },
+  {
+    title: "THOUGHT LEADERSHIP ARTICLE · SKILL PREVIEW",
+    prompt: `Generate an article outline for:<br><br>Topic: <span class="field">[AI in B2B demand generation]</span><br>Audience role: <span class="field">[VP Marketing, SaaS companies]</span><br>Angle: <span class="field">[Practical, not hype-driven]</span><br>Length: <span class="field">[1,000 to 1,500 words]</span><br><br>Output:<br>- Headline options<br>- Section outline<br>- Key argument per section`,
+    output: `
+      <div class="output-section"><div class="output-section-title">HEADLINE OPTIONS</div><div class="output-line"><span class="hi">AI Won't Replace Your Demand Gen Team. It Will Expose Whether They Have a Process.</span></div><div class="output-line">The Practical AI Stack for B2B Marketing in 2025</div></div>
+      <div class="output-section"><div class="output-section-title">SECTION OUTLINE</div><div class="output-line">1. <span class="hi">The problem</span> — most teams generate activity, not pipeline</div><div class="output-line">2. <span class="hi">Where AI fits</span> — content, segmentation, scoring, not strategy</div><div class="output-line">3. <span class="hi">What actually works</span> — 3 real use cases with measurable results</div><div class="output-line">4. <span class="hi">What to avoid</span> — over-automation, generic output, no human review</div><div class="output-line">5. <span class="hi">Next steps</span> — one thing to implement this quarter</div></div>
+      <div class="output-section"><div class="output-section-title">PRIMARY CTA</div><div class="output-line"><span class="hiorange">Download the AI Marketing Playbook</span> · linked at close of article</div></div>`
+  },
+  {
+    title: "LINKEDIN AD VARIATIONS · SKILL PREVIEW",
+    prompt: `Generate 3 LinkedIn ad variations for:<br><br>Offer: <span class="field">[Free pipeline audit]</span><br>Target: <span class="field">[VP Sales, B2B SaaS, 100-1000 employees]</span><br>Tone: <span class="field">[Confident, direct]</span><br><br>Output per variation:<br>- Headline<br>- Body copy (under 150 chars)<br>- CTA`,
+    output: `
+      <div class="output-section"><div class="output-section-title">VARIATION A · PROBLEM LED</div><div class="output-line">Headline: <span class="hi">Your pipeline looks full. Your forecast says otherwise.</span></div><div class="output-line">Copy: Most VP Sales we work with have a coverage problem hiding in plain sight. We'll show you where.</div><div class="output-line">CTA: <span class="hiorange">Get Your Free Audit</span></div></div>
+      <div class="output-section"><div class="output-section-title">VARIATION B · OUTCOME LED</div><div class="output-line">Headline: <span class="hi">What would 20% more closed deals look like?</span></div><div class="output-line">Copy: We audit B2B pipelines and find the deals worth saving. No cost, no commitment.</div><div class="output-line">CTA: <span class="hiorange">Claim Your Audit Slot</span></div></div>
+      <div class="output-section"><div class="output-section-title">VARIATION C · DIRECT</div><div class="output-line">Headline: <span class="hi">Free pipeline audit for B2B sales teams.</span></div><div class="output-line">Copy: 45 minutes. We review your pipeline and tell you exactly what to fix.</div><div class="output-line">CTA: <span class="hiorange">Book Now</span></div></div>`
+  },
+  {
+    title: "PIPELINE PERFORMANCE SUMMARY · SKILL PREVIEW",
+    prompt: `Summarize pipeline performance for:<br><br>Period: <span class="field">[Q3 2025]</span><br>Dataset: <span class="field">[CRM export attached]</span><br>Audience: <span class="field">[Executive team]</span><br><br>Output:<br>- Total pipeline and coverage ratio<br>- Top performing channels<br>- At-risk deals<br>- Recommended actions`,
+    output: `
+      <div class="output-section"><div class="output-section-title">PIPELINE OVERVIEW · Q3 2025</div><div class="output-line">Total open pipeline: <span class="higreen">$4.2M</span> across <span class="hi">87 active deals</span></div><div class="output-line">Coverage ratio: <span class="hi">3.1x</span> against $1.35M quota — on target</div></div>
+      <div class="output-section"><div class="output-section-title">TOP CHANNELS BY PIPELINE VALUE</div><div class="output-line"><span class="higreen">Referral</span> — $1.6M, avg deal size $42K, 61% close rate</div><div class="output-line"><span class="higreen">Email</span> — $980K, avg deal size $28K, improving MoM</div></div>
+      <div class="output-section"><div class="output-section-title">AT-RISK DEALS</div><div class="output-line"><span class="hiorange">14 deals</span> with no activity in 21 or more days</div><div class="output-line">Combined value: <span class="hi">$620K</span> — recommend immediate outreach</div></div>
+      <div class="output-section"><div class="output-section-title">RECOMMENDED ACTIONS</div><div class="output-line">Re-engage stale deals before end of quarter close push</div><div class="output-line">Shift budget from Paid Search to Referral enablement</div></div>`
+  },
+  {
+    title: "DEAL RE-ENGAGEMENT EMAIL · SKILL PREVIEW",
+    prompt: `Write a re-engagement email for:<br><br>Deal: <span class="field">[Acme Corp — $48K contract]</span><br>Stage: <span class="field">[Proposal sent, gone dark 3 weeks]</span><br>Last touch: <span class="field">[Demo call, positive feedback]</span><br>Rep tone: <span class="field">[Low pressure, direct]</span>`,
+    output: `
+      <div class="output-section"><div class="output-section-title">SUBJECT LINE</div><div class="output-line"><span class="hi">Still worth a quick conversation?</span></div></div>
+      <div class="output-section"><div class="output-section-title">EMAIL BODY</div><div class="output-line">Hi [Name],</div><div class="output-line">Wanted to check in since our demo call. You mentioned the workflow automation piece was exactly what the team needed.</div><div class="output-line">Happy to answer questions before you decide, or adjust the proposal if scope has changed.</div><div class="output-line">If timing has shifted, just let me know — no issue at all.</div></div>
+      <div class="output-section"><div class="output-section-title">CTA</div><div class="output-line"><span class="hiorange">15 minutes this week?</span> I can send a calendar link or you can reply here.</div></div>`
+  },
+  {
+    title: "LINKEDIN POST FROM CASE STUDY · SKILL PREVIEW",
+    prompt: `Write a LinkedIn post based on:<br><br>Case study: <span class="field">[Meridian Supply Co reduced manual reporting by 80% using AI]</span><br>Audience: <span class="field">[Operations and finance leaders]</span><br>Tone: <span class="field">[Credible, conversational]</span><br>Length: <span class="field">[Under 200 words]</span>`,
+    output: `
+      <div class="output-section"><div class="output-section-title">LINKEDIN POST</div><div class="output-line">Meridian Supply Co was spending <span class="hi">12 hours a week</span> pulling reports manually.</div><div class="output-line">After one AI integration, that dropped to under 2 hours.</div><div class="output-line">No new software. No new hire. Just a smarter process.</div><div class="output-line">They uploaded raw CRM and ops exports, wrote one prompt to clean and structure the data, and connected it to a simple dashboard. Setup took less than a day.</div><div class="output-line">Finance now gets weekly summaries automatically. Ops answers questions in minutes.</div><div class="output-line"><span class="hiorange">If your team is still doing this manually, it is worth a conversation.</span></div></div>`
+  },
+  {
+    title: "WEBINAR PROMO COPY PACK · SKILL PREVIEW",
+    prompt: `Generate a promo copy pack for:<br><br>Topic: <span class="field">[AI tools for B2B revenue teams]</span><br>Speaker: <span class="field">[CMO, mid-market SaaS company]</span><br>Date: <span class="field">[Thursday, Nov 14 at 1pm CT]</span><br>CTA: <span class="field">[Register now]</span><br><br>Output:<br>- Email subject + preview<br>- LinkedIn post<br>- SMS reminder`,
+    output: `
+      <div class="output-section"><div class="output-section-title">EMAIL SUBJECT + PREVIEW</div><div class="output-line">Subject: <span class="hi">Live webinar: AI tools actually worth using in B2B</span></div><div class="output-line">Preview: Join us Nov 14 — a real CMO shares what is working right now, no hype</div></div>
+      <div class="output-section"><div class="output-section-title">LINKEDIN POST</div><div class="output-line">Most AI content for marketers is theoretical. This is not.</div><div class="output-line">On Nov 14 we are going live with a CMO who deployed AI across a real revenue team and will show exactly what moved the needle.</div><div class="output-line"><span class="hiorange">Register free. Link in comments.</span></div></div>
+      <div class="output-section"><div class="output-section-title">SMS REMINDER</div><div class="output-line"><span class="hi">Reminder:</span> AI for B2B Revenue Teams starts in 1 hour. Join here: [link]</div></div>`
+  }
+];
+
+let currentTpl = 0;
+
+function renderTpl(idx) {
+  const t = templates[idx];
+  document.getElementById('expandTitle').textContent = t.title;
+  document.getElementById('promptBox').innerHTML = t.prompt;
+  document.getElementById('outputBox').innerHTML = t.output;
+}
+
+function selectCard(el, idx) {
+  document.querySelectorAll('.card').forEach(c => {
+    c.classList.remove('active');
+    c.querySelector('.card-tag').classList.remove('lit');
+  });
+  el.classList.add('active');
+  el.querySelector('.card-tag').classList.add('lit');
+  currentTpl = idx;
+}
+
+function showTab(id, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+  if (id === 'expanded') renderTpl(currentTpl);
+}
+
+renderTpl(0);
+</script>

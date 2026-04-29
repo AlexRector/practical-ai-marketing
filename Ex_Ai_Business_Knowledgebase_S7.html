@@ -1,0 +1,241 @@
+
+<h2 class="sr-only">Section 8: Centralized Knowledge Hub — SOPs, brand guidelines, and best practices employees can query instantly</h2>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font-sans, system-ui, sans-serif); }
+  .shell { background: #111; border: 1px solid #222; }
+  .topbar { background: #181818; border-bottom: 1px solid #222; padding: 8px 14px; display: flex; align-items: center; justify-content: space-between; }
+  .topbar-left { display: flex; align-items: center; gap: 10px; }
+  .dot { width: 7px; height: 7px; border-radius: 50%; background: #2e2e2e; display: inline-block; }
+  .topbar-title { font-size: 11px; color: #555; letter-spacing: 0.06em; }
+  .topbar-badge { font-size: 9px; color: #d07010; background: #1a1000; border: 1px solid #2e1c00; padding: 3px 8px; letter-spacing: 0.06em; }
+  .prompt-strip { background: #0f0f0f; border-bottom: 1px solid #1e1e1e; padding: 10px 14px; font-size: 11px; color: #555; font-family: 'Courier New', monospace; line-height: 1.6; }
+  .prompt-label { font-size: 9px; color: #d07010; letter-spacing: 0.1em; margin-bottom: 4px; font-family: var(--font-sans); font-weight: 500; }
+  .layout { display: grid; grid-template-columns: 240px 1fr; gap: 1px; background: #1e1e1e; min-height: 560px; }
+  .doc-panel { background: #0f0f0f; display: flex; flex-direction: column; }
+  .doc-header { padding: 10px 12px; border-bottom: 1px solid #1a1a1a; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+  .doc-header-title { font-size: 9px; color: #444; letter-spacing: 0.1em; }
+  .doc-count-badge { font-size: 9px; color: #d07010; background: #1a1000; border: 1px solid #2e1c00; padding: 2px 7px; }
+  .doc-search { padding: 8px; border-bottom: 1px solid #1a1a1a; flex-shrink: 0; }
+  .doc-search input { width: 100%; background: #111; border: 1px solid #222; padding: 5px 8px; font-size: 10px; color: #888; font-family: 'Courier New', monospace; outline: none; }
+  .doc-search input::placeholder { color: #333; }
+  .doc-categories { flex: 1; overflow-y: auto; padding: 8px; display: flex; flex-direction: column; gap: 10px; }
+  .doc-cat-label { font-size: 9px; color: #333; letter-spacing: 0.1em; margin-bottom: 5px; padding-left: 2px; }
+  .doc-items { display: flex; flex-direction: column; gap: 3px; }
+  .doc-item { padding: 7px 9px; border: 1px solid #1a1a1a; background: #111; cursor: pointer; transition: border-color 0.15s; display: flex; align-items: center; gap: 7px; }
+  .doc-item:hover { border-color: #444; }
+  .doc-item.active { border-color: #d07010; background: #161206; }
+  .doc-item-icon { font-size: 9px; color: #333; flex-shrink: 0; width: 14px; text-align: center; font-family: monospace; }
+  .doc-item.active .doc-item-icon { color: #d07010; }
+  .doc-item-info { flex: 1; min-width: 0; }
+  .doc-item-name { font-size: 10px; color: #777; line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .doc-item.active .doc-item-name { color: #c8c8c8; }
+  .doc-item-meta { font-size: 9px; color: #2e2e2e; margin-top: 1px; }
+  .chat-panel { background: #111; display: flex; flex-direction: column; }
+  .chat-context-bar { background: #141414; border-bottom: 1px solid #1e1e1e; padding: 7px 14px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; flex-shrink: 0; }
+  .context-label { font-size: 9px; color: #333; letter-spacing: 0.08em; }
+  .context-pill { font-size: 9px; color: #666; background: #161616; border: 1px solid #222; padding: 2px 8px; display: flex; align-items: center; gap: 4px; }
+  .context-pill.lit { border-color: #3a2000; color: #a06020; }
+  .context-dot { width: 5px; height: 5px; border-radius: 50%; background: #2a2a2a; }
+  .context-pill.lit .context-dot { background: #d07010; }
+  .q-chips { padding: 10px 14px; border-bottom: 1px solid #1a1a1a; display: flex; gap: 6px; flex-wrap: wrap; flex-shrink: 0; }
+  .q-chip { font-size: 10px; color: #555; background: #161616; border: 1px solid #222; padding: 5px 10px; cursor: pointer; transition: all 0.15s; white-space: nowrap; }
+  .q-chip:hover { border-color: #d07010; color: #c8c8c8; }
+  .q-chip.active { border-color: #d07010; color: #d07010; background: #1a1000; }
+  .chat-body { flex: 1; padding: 14px; display: flex; flex-direction: column; gap: 12px; min-height: 280px; overflow-y: auto; }
+  .msg-row { display: flex; gap: 9px; align-items: flex-start; }
+  .msg-row.user { flex-direction: row-reverse; }
+  .avatar { width: 24px; height: 24px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 8px; letter-spacing: 0.04em; font-weight: 600; }
+  .avatar.ai { background: #1a1a1a; border: 1px solid #2a2a2a; color: #555; }
+  .avatar.user { background: #1a1000; border: 1px solid #2e1c00; color: #d07010; }
+  .bubble { max-width: 82%; padding: 9px 12px; font-size: 12px; line-height: 1.65; }
+  .bubble.user { background: #161206; border: 1px solid #2a1c00; color: #c8c8c8; }
+  .bubble.ai { background: #161616; border: 1px solid #1e1e1e; color: #aaa; }
+  .bubble-label { font-size: 9px; letter-spacing: 0.08em; margin-bottom: 5px; }
+  .bubble-label.orange { color: #d07010; }
+  .bubble-label.grey { color: #333; }
+  .hi { color: #c8c8c8; }
+  .org { color: #d07010; }
+  .source-pills { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 8px; padding-top: 7px; border-top: 1px solid #1e1e1e; }
+  .source-pill { font-size: 9px; color: #555; background: #0f0f0f; border: 1px solid #1e1e1e; padding: 2px 7px; display: flex; align-items: center; gap: 4px; }
+  .source-pill span { color: #333; }
+  .typing { display: flex; gap: 3px; align-items: center; padding: 9px 12px; background: #161616; border: 1px solid #1e1e1e; width: fit-content; }
+  .typing-dot { width: 5px; height: 5px; background: #333; border-radius: 50%; animation: blink 1.2s infinite; }
+  .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+  .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes blink { 0%,80%,100%{background:#333;} 40%{background:#888;} }
+  .input-row { padding: 10px 14px; border-top: 1px solid #1a1a1a; display: flex; gap: 8px; align-items: center; flex-shrink: 0; }
+  .fake-input { flex: 1; background: #0f0f0f; border: 1px solid #1e1e1e; padding: 7px 10px; font-size: 11px; color: #444; font-family: 'Courier New', monospace; }
+  .send-btn { font-size: 9px; color: #d07010; background: #1a1000; border: 1px solid #d07010; padding: 6px 12px; letter-spacing: 0.06em; cursor: pointer; white-space: nowrap; }
+</style>
+
+<div class="shell">
+  <div class="topbar">
+    <div class="topbar-left">
+      <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+      <span class="topbar-title">COMPANY KNOWLEDGE HUB · AI ENABLED</span>
+    </div>
+    <span class="topbar-badge">14 DOCUMENTS INDEXED</span>
+  </div>
+
+  <div class="prompt-strip">
+    <div class="prompt-label">HOW IT WORKS</div>
+    Upload your SOPs, brand guidelines, onboarding docs, and playbooks. Anyone on the team can ask questions in plain English and get answers sourced directly from your documents. No digging, no waiting, no asking around.
+  </div>
+
+  <div class="layout">
+    <div class="doc-panel">
+      <div class="doc-header">
+        <span class="doc-header-title">KNOWLEDGE BASE</span>
+        <span class="doc-count-badge">14 DOCS</span>
+      </div>
+      <div class="doc-search"><input type="text" placeholder="Search documents..." readonly></div>
+      <div class="doc-categories">
+        <div>
+          <div class="doc-cat-label">BRAND</div>
+          <div class="doc-items">
+            <div class="doc-item active" onclick="selectDoc(this)"><div class="doc-item-icon">B</div><div class="doc-item-info"><div class="doc-item-name">Brand Guidelines v3</div><div class="doc-item-meta">Updated Jan 2025</div></div></div>
+            <div class="doc-item" onclick="selectDoc(this)"><div class="doc-item-icon">B</div><div class="doc-item-info"><div class="doc-item-name">Voice and Tone Guide</div><div class="doc-item-meta">Updated Mar 2025</div></div></div>
+            <div class="doc-item" onclick="selectDoc(this)"><div class="doc-item-icon">B</div><div class="doc-item-info"><div class="doc-item-name">Visual Identity Standards</div><div class="doc-item-meta">Updated Jan 2025</div></div></div>
+          </div>
+        </div>
+        <div>
+          <div class="doc-cat-label">PROCESS</div>
+          <div class="doc-items">
+            <div class="doc-item" onclick="selectDoc(this)"><div class="doc-item-icon">P</div><div class="doc-item-info"><div class="doc-item-name">Campaign Launch SOP</div><div class="doc-item-meta">Updated Feb 2025</div></div></div>
+            <div class="doc-item" onclick="selectDoc(this)"><div class="doc-item-icon">P</div><div class="doc-item-info"><div class="doc-item-name">Content Approval Workflow</div><div class="doc-item-meta">Updated Apr 2025</div></div></div>
+            <div class="doc-item" onclick="selectDoc(this)"><div class="doc-item-icon">P</div><div class="doc-item-info"><div class="doc-item-name">Lead Handoff Playbook</div><div class="doc-item-meta">Updated Jan 2025</div></div></div>
+            <div class="doc-item" onclick="selectDoc(this)"><div class="doc-item-icon">P</div><div class="doc-item-info"><div class="doc-item-name">Event Production SOP</div><div class="doc-item-meta">Updated Dec 2024</div></div></div>
+          </div>
+        </div>
+        <div>
+          <div class="doc-cat-label">ONBOARDING</div>
+          <div class="doc-items">
+            <div class="doc-item" onclick="selectDoc(this)"><div class="doc-item-icon">O</div><div class="doc-item-info"><div class="doc-item-name">New Hire Marketing Guide</div><div class="doc-item-meta">Updated Mar 2025</div></div></div>
+            <div class="doc-item" onclick="selectDoc(this)"><div class="doc-item-icon">O</div><div class="doc-item-info"><div class="doc-item-name">Tools and Access Setup</div><div class="doc-item-meta">Updated Feb 2025</div></div></div>
+            <div class="doc-item" onclick="selectDoc(this)"><div class="doc-item-icon">O</div><div class="doc-item-info"><div class="doc-item-name">30-60-90 Day Plan Template</div><div class="doc-item-meta">Updated Jan 2025</div></div></div>
+          </div>
+        </div>
+        <div>
+          <div class="doc-cat-label">STRATEGY</div>
+          <div class="doc-items">
+            <div class="doc-item" onclick="selectDoc(this)"><div class="doc-item-icon">S</div><div class="doc-item-info"><div class="doc-item-name">2025 Marketing Strategy</div><div class="doc-item-meta">Updated Jan 2025</div></div></div>
+            <div class="doc-item" onclick="selectDoc(this)"><div class="doc-item-icon">S</div><div class="doc-item-info"><div class="doc-item-name">ICP and Persona Profiles</div><div class="doc-item-meta">Updated Feb 2025</div></div></div>
+            <div class="doc-item" onclick="selectDoc(this)"><div class="doc-item-icon">S</div><div class="doc-item-info"><div class="doc-item-name">Competitive Landscape Q1</div><div class="doc-item-meta">Updated Mar 2025</div></div></div>
+            <div class="doc-item" onclick="selectDoc(this)"><div class="doc-item-icon">S</div><div class="doc-item-info"><div class="doc-item-name">Messaging Framework 2025</div><div class="doc-item-meta">Updated Jan 2025</div></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="chat-panel">
+      <div class="chat-context-bar">
+        <span class="context-label">SEARCHING ACROSS</span>
+        <span class="context-pill lit"><span class="context-dot"></span>Brand</span>
+        <span class="context-pill lit"><span class="context-dot"></span>Process</span>
+        <span class="context-pill lit"><span class="context-dot"></span>Onboarding</span>
+        <span class="context-pill lit"><span class="context-dot"></span>Strategy</span>
+        <span class="context-pill" style="margin-left:auto;border-color:#1a1a1a;color:#2a2a2a;"><span class="context-dot"></span>All 14 docs</span>
+      </div>
+      <div class="q-chips">
+        <div class="q-chip active" onclick="selectQ(0,this)">What is our brand voice?</div>
+        <div class="q-chip" onclick="selectQ(1,this)">How do we launch a campaign?</div>
+        <div class="q-chip" onclick="selectQ(2,this)">What does a new hire need first?</div>
+        <div class="q-chip" onclick="selectQ(3,this)">Who is our primary ICP?</div>
+      </div>
+      <div class="chat-body" id="chatBody"></div>
+      <div class="input-row">
+        <div class="fake-input" id="inputPreview">What is our brand voice and tone?</div>
+        <div class="send-btn">ASK</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const questions = [
+  "What is our brand voice and tone?",
+  "How do we launch a new campaign? What are the steps?",
+  "What does a new hire on the marketing team need to know in their first week?",
+  "Who is our primary ICP and what do they care about most?"
+];
+
+const answers = [
+  {
+    text: `Our brand voice is <span class="hi">direct, credible, and free of fluff</span>. We write for operators and decision-makers, not observers. Sentences are short. Jargon is avoided unless the audience uses it themselves.<br><br>Tone adjusts by context: <span class="hi">confident in ads</span>, <span class="hi">warm but efficient in email</span>, and <span class="hi">precise in documentation</span>. We never use em dashes. We avoid passive voice. We do not start sentences with "We are excited to announce."`,
+    sources: ['Voice and Tone Guide', 'Brand Guidelines v3', 'Messaging Framework 2025']
+  },
+  {
+    text: `Campaign launches follow a <span class="hi">6-step process</span> outlined in the Campaign Launch SOP:<br><br>1. <span class="hi">Brief approval</span>: align on audience, goal, budget, and timeline<br>2. <span class="hi">Asset creation</span>: copy, visuals, and landing page built in parallel<br>3. <span class="hi">Review cycle</span>: one round of feedback, max 48 hours<br>4. <span class="hi">QA and tracking setup</span>: UTMs, pixels, and form confirmations verified<br>5. <span class="hi">Staged launch</span>: email goes first, paid follows 24 hours later<br>6. <span class="hi">Day 3 check</span>: review delivery, open rates, and early conversion signal`,
+    sources: ['Campaign Launch SOP', 'Content Approval Workflow']
+  },
+  {
+    text: `First week priorities for a new marketing hire:<br><br><span class="hi">Days 1 and 2:</span> Complete tools and access setup, read brand guidelines and voice guide, review the 2025 marketing strategy doc.<br><br><span class="hi">Days 3 and 4:</span> Review ICP and persona profiles, read the messaging framework, shadow one active campaign.<br><br><span class="hi">Day 5:</span> 30-60-90 day plan review with manager. The goal is context before contribution. No one should be producing output in week one without understanding who we are talking to and why.`,
+    sources: ['New Hire Marketing Guide', 'Tools and Access Setup', '30-60-90 Day Plan Template', 'Brand Guidelines v3']
+  },
+  {
+    text: `Our primary ICP is <span class="hi">VP of Operations or Director of Marketing</span> at B2B companies with 50 to 500 employees, typically in logistics, distribution, or field services.<br><br>They care most about: <span class="hi">efficiency without adding headcount</span>, clear ROI within a defined timeline, and solutions that do not require heavy IT involvement to deploy.<br><br>They are skeptical of hype, responsive to peer case studies, and make decisions collaboratively with finance. <span class="org">Time is their scarcest resource.</span> Anything that wastes it loses them immediately.`,
+    sources: ['ICP and Persona Profiles', '2025 Marketing Strategy', 'Messaging Framework 2025']
+  }
+];
+
+let current = 0;
+
+function selectDoc(el) {
+  document.querySelectorAll('.doc-item').forEach(d => d.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function selectQ(idx, btn) {
+  if (idx === current) return;
+  current = idx;
+  document.querySelectorAll('.q-chip').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('inputPreview').textContent = questions[idx];
+  const body = document.getElementById('chatBody');
+  body.innerHTML = `
+    <div class="msg-row user">
+      <div class="avatar user">YOU</div>
+      <div class="bubble user"><div class="bubble-label orange">QUESTION</div>${questions[idx]}</div>
+    </div>
+    <div class="msg-row">
+      <div class="avatar ai">AI</div>
+      <div class="typing"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>
+    </div>`;
+  setTimeout(() => {
+    const a = answers[idx];
+    body.innerHTML = `
+      <div class="msg-row user">
+        <div class="avatar user">YOU</div>
+        <div class="bubble user"><div class="bubble-label orange">QUESTION</div>${questions[idx]}</div>
+      </div>
+      <div class="msg-row">
+        <div class="avatar ai">AI</div>
+        <div class="bubble ai">
+          <div class="bubble-label grey">ANSWER · SOURCED FROM YOUR DOCUMENTS</div>
+          <div>${a.text}</div>
+          <div class="source-pills">${a.sources.map(s=>`<div class="source-pill"><span>SRC</span>${s}</div>`).join('')}</div>
+        </div>
+      </div>`;
+  }, 800);
+}
+
+function initChat() {
+  const a = answers[0];
+  document.getElementById('chatBody').innerHTML = `
+    <div class="msg-row user">
+      <div class="avatar user">YOU</div>
+      <div class="bubble user"><div class="bubble-label orange">QUESTION</div>${questions[0]}</div>
+    </div>
+    <div class="msg-row">
+      <div class="avatar ai">AI</div>
+      <div class="bubble ai">
+        <div class="bubble-label grey">ANSWER · SOURCED FROM YOUR DOCUMENTS</div>
+        <div>${a.text}</div>
+        <div class="source-pills">${a.sources.map(s=>`<div class="source-pill"><span>SRC</span>${s}</div>`).join('')}</div>
+      </div>
+    </div>`;
+}
+
+initChat();
+</script>

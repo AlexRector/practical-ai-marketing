@@ -1,0 +1,318 @@
+
+<h2 class="sr-only">Section 1: Messy Data to Clear Reporting — three years of raw exports cleaned and summarized</h2>
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  .prompt-strip { background: #0f0f0f; border: 1px solid #222; border-bottom: none; padding: 10px 14px; font-size: 11px; color: #555; font-family: 'Courier New', monospace; line-height: 1.6; }
+  .prompt-label { font-size: 9px; color: #d07010; letter-spacing: 0.1em; margin-bottom: 4px; font-family: var(--font-sans); font-weight: 500; }
+  .tab-row { display: flex; border-bottom: 1px solid #2a2a2a; background: #141414; flex-wrap: wrap; }
+  .tab { padding: 8px 18px; font-size: 11px; cursor: pointer; color: #555; background: #141414; border: 1px solid #333; border-bottom: none; margin-right: 2px; letter-spacing: 0.04em; font-family: var(--font-sans); }
+  .tab.active { background: #111; color: #c8c8c8; border-color: #d07010; border-bottom: 1px solid #111; }
+  .tab:hover { color: #c8c8c8; border-color: #d07010; }
+  .panel { display: none; }
+  .panel.active { display: block; }
+  .xls-wrap { background: #111; border: 1px solid #222; border-top: none; }
+  .xls-toolbar { background: #191919; padding: 5px 12px; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid #252525; flex-wrap: wrap; }
+  .fname { font-size: 10px; color: #555; font-family: var(--font-sans); }
+  .dot { width: 7px; height: 7px; border-radius: 50%; background: #2e2e2e; display: inline-block; }
+  .yr-switcher { display: flex; gap: 4px; margin-left: auto; }
+  .yr-btn { font-size: 9px; color: #555; background: #1a1000; border: 1px solid #2a2a2a; padding: 3px 9px; cursor: pointer; letter-spacing: 0.06em; font-family: var(--font-sans); }
+  .yr-btn.active { color: #d07010; border-color: #d07010; }
+  .yr-btn:hover { border-color: #d07010; color: #d07010; }
+  table.xls { width: 100%; border-collapse: collapse; font-size: 11px; font-family: 'Courier New', monospace; }
+  table.xls th { background: #181818; color: #555; font-weight: 400; padding: 5px 10px; text-align: left; border: 1px solid #222; font-size: 10px; letter-spacing: 0.05em; white-space: nowrap; }
+  table.xls td { padding: 4px 10px; border: 1px solid #1e1e1e; color: #999; white-space: nowrap; }
+  table.xls tr:nth-child(even) td { background: #161616; }
+  table.xls tr:nth-child(odd) td { background: #121212; }
+  .xls-err { color: #b03a2a; font-size: 10px; }
+  .xls-blank { color: #252525; }
+  .xls-warn td { background: #181200 !important; }
+  .row-num { color: #333; font-size: 10px; text-align: right; padding-right: 8px; border-right: 1px solid #222; background: #161616 !important; min-width: 28px; }
+  .section-header { display: flex; align-items: center; justify-content: space-between; padding: 7px 12px; background: #141414; border-bottom: 1px solid #222; gap: 8px; flex-wrap: wrap; }
+  .hl { font-size: 10px; color: #666; letter-spacing: 0.06em; font-family: var(--font-sans); }
+  .badge { font-size: 9px; color: #d07010; background: #1a1000; border: 1px solid #2e1c00; padding: 3px 8px; letter-spacing: 0.06em; font-family: var(--font-sans); white-space: nowrap; }
+  td.rev { color: #4a9a5a; text-align: right; }
+  td.num { text-align: right; color: #aaa; }
+  td.total-rev { color: #4a9a5a; text-align: right; font-weight: 500; }
+  td.total-num { text-align: right; color: #c8c8c8; }
+  th.num { text-align: right; }
+  .yrtable { display: none; }
+  .yrtable.active { display: table; width: 100%; border-collapse: collapse; }
+  .chart-wrap { padding: 18px 16px; }
+  .chart-label { font-size: 10px; color: #444; letter-spacing: 0.08em; margin-bottom: 14px; font-family: var(--font-sans); }
+  .bar-group { display: flex; flex-direction: column; gap: 4px; }
+  .bar-row { display: flex; align-items: center; gap: 8px; }
+  .bar-ch { font-size: 12px; color: #888; font-family: 'Courier New', monospace; width: 100px; text-align: right; flex-shrink: 0; }
+  .bar-ch.empty { color: #2a2a2a; }
+  .bar-yr { width: 34px; font-size: 9px; color: #3a3a3a; flex-shrink: 0; font-family: var(--font-sans); }
+  .bar-track { flex: 1; height: 12px; background: #1a1a1a; }
+  .bar-fill { height: 100%; transition: width 0.7s ease; }
+  .bar-val { font-size: 10px; color: #666; font-family: 'Courier New', monospace; width: 60px; flex-shrink: 0; }
+  .bar-sep { height: 8px; }
+  .legend-row { display: flex; gap: 18px; margin-top: 14px; padding-top: 10px; border-top: 1px solid #1a1a1a; }
+  .legend-item { font-size: 10px; color: #555; display: flex; align-items: center; gap: 5px; font-family: var(--font-sans); }
+  .legend-swatch { width: 10px; height: 3px; display: inline-block; }
+  .exec-wrap { padding: 20px; }
+  .exec-title { font-size: 10px; color: #d07010; letter-spacing: 0.1em; margin-bottom: 14px; border-bottom: 1px solid #1e1e1e; padding-bottom: 8px; font-family: var(--font-sans); }
+  .exec-list { list-style: none; }
+  .exec-list li { font-size: 12px; color: #aaa; padding: 8px 0; border-bottom: 1px solid #1a1a1a; line-height: 1.6; font-family: var(--font-sans); }
+  .exec-list li::before { content: "> "; color: #d07010; font-family: monospace; }
+  .stat-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1px; background: #1a1a1a; margin-top: 18px; }
+  .stat-card { background: #111; padding: 12px 14px; }
+  .stat-lbl { font-size: 9px; color: #444; letter-spacing: 0.09em; font-family: var(--font-sans); }
+  .stat-num { font-size: 17px; color: #c8c8c8; font-family: 'Courier New', monospace; margin-top: 5px; }
+  .stat-delta { font-size: 10px; color: #4a9a5a; margin-top: 3px; font-family: var(--font-sans); }
+</style>
+
+<div>
+  <div class="prompt-strip">
+    <div class="prompt-label">AI PROMPT</div>
+    Clean and structure the dataset into: Channel, Leads, Lead to Opp %, Opportunities, Opp to Closed %, Closed Won, Revenue — then generate 3 executive insights and a YoY performance summary.
+  </div>
+
+  <div class="tab-row">
+    <div class="tab active" onclick="show('raw',this)">RAW EXPORT</div>
+    <div class="tab" onclick="show('clean',this)">CLEANED OUTPUT</div>
+    <div class="tab" onclick="show('chart',this)">REVENUE BY CHANNEL</div>
+    <div class="tab" onclick="show('exec',this)">EXEC SUMMARY</div>
+  </div>
+
+  <!-- RAW EXPORT -->
+  <div id="raw" class="panel active">
+    <div class="xls-wrap">
+      <div class="xls-toolbar">
+        <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+        <span class="fname" style="margin-left:8px;" id="raw-fname">marketing_raw_export_2025.csv</span>
+        <div class="yr-switcher">
+          <div class="yr-btn" onclick="switchYear('2023',this,'raw')">2023</div>
+          <div class="yr-btn" onclick="switchYear('2024',this,'raw')">2024</div>
+          <div class="yr-btn active" onclick="switchYear('2025',this,'raw')">2025</div>
+        </div>
+      </div>
+      <table class="xls yrtable" id="raw-2023">
+        <tr><th></th><th>A</th><th>B</th><th>C</th><th>D</th><th>E</th><th>F</th><th>G</th></tr>
+        <tr><td class="row-num">1</td><td>channel</td><td>leads</td><td>conv</td><td>opps</td><td>cls%</td><td>won</td><td>revenue</td></tr>
+        <tr><td class="row-num">2</td><td>paid search</td><td>1200</td><td>16</td><td>192</td><td>32</td><td>61</td><td>488000</td></tr>
+        <tr><td class="row-num">3</td><td>Paid Social</td><td>950</td><td class="xls-err">N/A</td><td>143</td><td>28</td><td>40</td><td>320000</td></tr>
+        <tr class="xls-warn"><td class="row-num">4</td><td>EMAIL</td><td>700</td><td>18%</td><td>126</td><td>45%</td><td>57</td><td class="xls-err">????????</td></tr>
+        <tr><td class="row-num">5</td><td>referral</td><td class="xls-err">#VALUE</td><td>38%</td><td>152</td><td>58%</td><td>88</td><td>1056000</td></tr>
+        <tr><td class="row-num">6</td><td>Organic</td><td>800</td><td>14</td><td>112</td><td>22</td><td>25</td><td>200000</td></tr>
+        <tr><td class="row-num">7</td><td>direct</td><td>600</td><td class="xls-err">#REF!</td><td>120</td><td>35%</td><td>42</td><td>336000</td></tr>
+        <tr><td class="row-num">8</td><td class="xls-blank">.</td><td class="xls-blank">.</td><td class="xls-blank">.</td><td class="xls-blank">.</td><td class="xls-blank">.</td><td class="xls-blank">.</td><td class="xls-blank">.</td></tr>
+        <tr><td class="row-num">9</td><td class="xls-blank">TOTAL?</td><td></td><td></td><td></td><td></td><td></td><td class="xls-err">#######</td></tr>
+      </table>
+      <table class="xls yrtable" id="raw-2024">
+        <tr><th></th><th>A</th><th>B</th><th>C</th><th>D</th><th>E</th><th>F</th><th>G</th></tr>
+        <tr><td class="row-num">1</td><td>channel</td><td>leads24</td><td>CONV%</td><td>opps</td><td>close%</td><td>WON</td><td>rev</td></tr>
+        <tr><td class="row-num">2</td><td>paid srch</td><td>1350</td><td>17</td><td>230</td><td class="xls-err">#REF!</td><td>78</td><td>624000</td></tr>
+        <tr><td class="row-num">3</td><td>Paid Social</td><td>1050</td><td class="xls-err">N/A</td><td>168</td><td>30</td><td>50</td><td>400000</td></tr>
+        <tr class="xls-warn"><td class="row-num">4</td><td>EMAIL</td><td>820</td><td>19%</td><td>156</td><td>47%</td><td>73</td><td class="xls-err">????????</td></tr>
+        <tr><td class="row-num">5</td><td>referral</td><td class="xls-err">#VALUE</td><td>40%</td><td>192</td><td>60%</td><td>115</td><td>1380000</td></tr>
+        <tr><td class="row-num">6</td><td>Organic Search</td><td>900</td><td>15</td><td>135</td><td>23</td><td>31</td><td>248000</td></tr>
+        <tr><td class="row-num">7</td><td>direct</td><td>720</td><td>21%</td><td class="xls-err">#N/A</td><td>36%</td><td>54</td><td>432000</td></tr>
+        <tr><td class="row-num">8</td><td>INFLUENCER</td><td>300</td><td>22%</td><td>66</td><td>40</td><td>26</td><td>208000</td></tr>
+        <tr class="xls-warn"><td class="row-num">9</td><td>Affiliates</td><td>250</td><td class="xls-blank">.</td><td>63</td><td>42%</td><td>26</td><td class="xls-err">#DIV/0!</td></tr>
+        <tr><td class="row-num">10</td><td class="xls-blank">TOTAL?</td><td></td><td></td><td></td><td></td><td></td><td class="xls-err">#######</td></tr>
+      </table>
+      <table class="xls yrtable active" id="raw-2025">
+        <tr><th></th><th>A</th><th>B</th><th>C</th><th>D</th><th>E</th><th>F</th><th>G</th></tr>
+        <tr><td class="row-num">1</td><td>channel</td><td>leads2025</td><td>CONV%</td><td>opps</td><td>close%</td><td>WON</td><td>rev</td></tr>
+        <tr><td class="row-num">2</td><td>paid srch</td><td>1500</td><td>18</td><td>270</td><td class="xls-err">#REF!</td><td>97</td><td>776000</td></tr>
+        <tr><td class="row-num">3</td><td class="xls-blank">.</td><td class="xls-blank">.</td><td class="xls-blank">.</td><td class="xls-blank">.</td><td class="xls-blank">.</td><td class="xls-blank">.</td><td class="xls-blank">.</td></tr>
+        <tr><td class="row-num">4</td><td>Paid Social</td><td>1200</td><td class="xls-err">N/A</td><td>204</td><td>31</td><td>63</td><td>504000</td></tr>
+        <tr class="xls-warn"><td class="row-num">5</td><td>EMAIL</td><td>950</td><td>20%</td><td>190</td><td>50%</td><td>95</td><td class="xls-err">????????</td></tr>
+        <tr><td class="row-num">6</td><td>referral</td><td class="xls-err">#VALUE</td><td>42%</td><td>231</td><td>63%</td><td>146</td><td>1752000</td></tr>
+        <tr><td class="row-num">7</td><td>Organic Search</td><td>1000</td><td>15</td><td>150</td><td>25</td><td>38</td><td>304000</td></tr>
+        <tr><td class="row-num">8</td><td>direct</td><td>850</td><td>22%</td><td class="xls-err">#N/A</td><td>38%</td><td>71</td><td>568000</td></tr>
+        <tr><td class="row-num">9</td><td>INFLUENCER</td><td>500</td><td>24%</td><td>120</td><td>45</td><td>54</td><td>432000</td></tr>
+        <tr class="xls-warn"><td class="row-num">10</td><td>Affiliates</td><td>400</td><td class="xls-blank">.</td><td>112</td><td>48%</td><td>54</td><td class="xls-err">#DIV/0!</td></tr>
+        <tr><td class="row-num">11</td><td>Partnerships</td><td>300</td><td>30</td><td>90</td><td>50</td><td>45</td><td>360000</td></tr>
+        <tr><td class="row-num">12</td><td class="xls-err">DUPLICATE ROW</td><td>300</td><td>30</td><td>90</td><td>50</td><td>45</td><td>360000</td></tr>
+        <tr><td class="row-num">13</td><td class="xls-blank">TOTAL?</td><td></td><td></td><td></td><td></td><td></td><td class="xls-err">#######</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- CLEANED OUTPUT -->
+  <div id="clean" class="panel">
+    <div class="xls-wrap">
+      <div class="section-header">
+        <span class="hl" id="clean-hl">AI CLEANED · 2025 DATASET · 9 CHANNELS</span>
+        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+          <div class="yr-switcher">
+            <div class="yr-btn" onclick="switchYear('2023',this,'clean')">2023</div>
+            <div class="yr-btn" onclick="switchYear('2024',this,'clean')">2024</div>
+            <div class="yr-btn active" onclick="switchYear('2025',this,'clean')">2025</div>
+          </div>
+          <span class="badge" id="clean-badge">AI STRUCTURED · 9 CHANNELS</span>
+        </div>
+      </div>
+      <table class="xls yrtable" id="clean-2023">
+        <tr><th></th><th>CHANNEL</th><th class="num">LEADS</th><th class="num">LEAD TO OPP %</th><th class="num">OPPS</th><th class="num">OPP TO CLOSED %</th><th class="num">CLOSED WON</th><th class="num">REVENUE</th></tr>
+        <tr><td class="row-num">1</td><td>Paid Search</td><td class="num">1,200</td><td class="num">16%</td><td class="num">192</td><td class="num">32%</td><td class="num">61</td><td class="rev">$488,000</td></tr>
+        <tr><td class="row-num">2</td><td>Paid Social</td><td class="num">950</td><td class="num">15%</td><td class="num">143</td><td class="num">28%</td><td class="num">40</td><td class="rev">$320,000</td></tr>
+        <tr><td class="row-num">3</td><td>Email</td><td class="num">700</td><td class="num">18%</td><td class="num">126</td><td class="num">45%</td><td class="num">57</td><td class="rev">$684,000</td></tr>
+        <tr><td class="row-num">4</td><td>Referral</td><td class="num">400</td><td class="num">38%</td><td class="num">152</td><td class="num">58%</td><td class="num">88</td><td class="rev">$1,056,000</td></tr>
+        <tr><td class="row-num">5</td><td>Organic</td><td class="num">800</td><td class="num">14%</td><td class="num">112</td><td class="num">22%</td><td class="num">25</td><td class="rev">$200,000</td></tr>
+        <tr><td class="row-num">6</td><td>Direct</td><td class="num">600</td><td class="num">20%</td><td class="num">120</td><td class="num">35%</td><td class="num">42</td><td class="rev">$336,000</td></tr>
+        <tr style="border-top:1px solid #2a2a2a;"><td class="row-num" style="color:#666;">S</td><td style="color:#666;font-size:10px;">TOTAL 2023</td><td class="total-num">4,650</td><td class="num" style="color:#333;">--</td><td class="total-num">845</td><td class="num" style="color:#333;">--</td><td class="total-num">313</td><td class="total-rev">$3,084,000</td></tr>
+      </table>
+      <table class="xls yrtable" id="clean-2024">
+        <tr><th></th><th>CHANNEL</th><th class="num">LEADS</th><th class="num">LEAD TO OPP %</th><th class="num">OPPS</th><th class="num">OPP TO CLOSED %</th><th class="num">CLOSED WON</th><th class="num">REVENUE</th></tr>
+        <tr><td class="row-num">1</td><td>Paid Search</td><td class="num">1,350</td><td class="num">17%</td><td class="num">230</td><td class="num">34%</td><td class="num">78</td><td class="rev">$624,000</td></tr>
+        <tr><td class="row-num">2</td><td>Paid Social</td><td class="num">1,050</td><td class="num">16%</td><td class="num">168</td><td class="num">30%</td><td class="num">50</td><td class="rev">$400,000</td></tr>
+        <tr><td class="row-num">3</td><td>Email</td><td class="num">820</td><td class="num">19%</td><td class="num">156</td><td class="num">47%</td><td class="num">73</td><td class="rev">$876,000</td></tr>
+        <tr><td class="row-num">4</td><td>Referral</td><td class="num">480</td><td class="num">40%</td><td class="num">192</td><td class="num">60%</td><td class="num">115</td><td class="rev">$1,380,000</td></tr>
+        <tr><td class="row-num">5</td><td>Organic</td><td class="num">900</td><td class="num">15%</td><td class="num">135</td><td class="num">23%</td><td class="num">31</td><td class="rev">$248,000</td></tr>
+        <tr><td class="row-num">6</td><td>Direct</td><td class="num">720</td><td class="num">21%</td><td class="num">151</td><td class="num">36%</td><td class="num">54</td><td class="rev">$432,000</td></tr>
+        <tr><td class="row-num">7</td><td>Influencer</td><td class="num">300</td><td class="num">22%</td><td class="num">66</td><td class="num">40%</td><td class="num">26</td><td class="rev">$208,000</td></tr>
+        <tr><td class="row-num">8</td><td>Affiliates</td><td class="num">250</td><td class="num">25%</td><td class="num">63</td><td class="num">42%</td><td class="num">26</td><td class="rev">$208,000</td></tr>
+        <tr style="border-top:1px solid #2a2a2a;"><td class="row-num" style="color:#666;">S</td><td style="color:#666;font-size:10px;">TOTAL 2024</td><td class="total-num">5,870</td><td class="num" style="color:#333;">--</td><td class="total-num">1,161</td><td class="num" style="color:#333;">--</td><td class="total-num">453</td><td class="total-rev">$4,376,000</td></tr>
+      </table>
+      <table class="xls yrtable active" id="clean-2025">
+        <tr><th></th><th>CHANNEL</th><th class="num">LEADS</th><th class="num">LEAD TO OPP %</th><th class="num">OPPS</th><th class="num">OPP TO CLOSED %</th><th class="num">CLOSED WON</th><th class="num">REVENUE</th></tr>
+        <tr><td class="row-num">1</td><td>Paid Search</td><td class="num">1,500</td><td class="num">18%</td><td class="num">270</td><td class="num">36%</td><td class="num">97</td><td class="rev">$776,000</td></tr>
+        <tr><td class="row-num">2</td><td>Paid Social</td><td class="num">1,200</td><td class="num">17%</td><td class="num">204</td><td class="num">31%</td><td class="num">63</td><td class="rev">$504,000</td></tr>
+        <tr><td class="row-num">3</td><td>Email</td><td class="num">950</td><td class="num">20%</td><td class="num">190</td><td class="num">50%</td><td class="num">95</td><td class="rev">$1,140,000</td></tr>
+        <tr><td class="row-num">4</td><td>Referral</td><td class="num">550</td><td class="num">42%</td><td class="num">231</td><td class="num">63%</td><td class="num">146</td><td class="rev">$1,752,000</td></tr>
+        <tr><td class="row-num">5</td><td>Organic</td><td class="num">1,000</td><td class="num">15%</td><td class="num">150</td><td class="num">25%</td><td class="num">38</td><td class="rev">$304,000</td></tr>
+        <tr><td class="row-num">6</td><td>Direct</td><td class="num">850</td><td class="num">22%</td><td class="num">187</td><td class="num">38%</td><td class="num">71</td><td class="rev">$568,000</td></tr>
+        <tr><td class="row-num">7</td><td>Influencer</td><td class="num">500</td><td class="num">24%</td><td class="num">120</td><td class="num">45%</td><td class="num">54</td><td class="rev">$432,000</td></tr>
+        <tr><td class="row-num">8</td><td>Affiliates</td><td class="num">400</td><td class="num">28%</td><td class="num">112</td><td class="num">48%</td><td class="num">54</td><td class="rev">$432,000</td></tr>
+        <tr><td class="row-num">9</td><td>Partnerships</td><td class="num">300</td><td class="num">30%</td><td class="num">90</td><td class="num">50%</td><td class="num">45</td><td class="rev">$360,000</td></tr>
+        <tr style="border-top:1px solid #2a2a2a;"><td class="row-num" style="color:#666;">S</td><td style="color:#666;font-size:10px;">TOTAL 2025</td><td class="total-num">7,250</td><td class="num" style="color:#333;">--</td><td class="total-num">1,554</td><td class="num" style="color:#333;">--</td><td class="total-num">663</td><td class="total-rev">$6,268,000</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- REVENUE BY CHANNEL -->
+  <div id="chart" class="panel">
+    <div class="xls-wrap">
+      <div class="section-header">
+        <span class="hl">REVENUE BY CHANNEL · 2023 TO 2025</span>
+        <span class="badge">YoY GROWTH</span>
+      </div>
+      <div class="chart-wrap">
+        <div class="chart-label">REVENUE ($USD) PER CHANNEL · THREE YEAR COMPARISON</div>
+        <div class="bar-group" id="barGroup"></div>
+        <div class="legend-row">
+          <span class="legend-item"><span class="legend-swatch" style="background:#4a3020;"></span>2023</span>
+          <span class="legend-item"><span class="legend-swatch" style="background:#c07030;"></span>2024</span>
+          <span class="legend-item"><span class="legend-swatch" style="background:#e8a040;"></span>2025</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- EXEC SUMMARY -->
+  <div id="exec" class="panel">
+    <div class="xls-wrap">
+      <div class="section-header">
+        <span class="hl">EXECUTIVE SUMMARY · AI GENERATED · Q4 2025</span>
+        <span class="badge">3 INSIGHTS</span>
+      </div>
+      <div class="exec-wrap">
+        <div class="exec-title">PROGRAM PERFORMANCE ANALYSIS</div>
+        <ul class="exec-list">
+          <li>Referral remains the highest-converting channel at 42% lead-to-opp and 63% close rate, generating $1.75M in 2025 on just 550 leads. Cost per acquisition is significantly below any paid channel.</li>
+          <li>Email is the most improved channel year over year, growing from $684K in 2023 to $1.14M in 2025, a 67% revenue increase driven by close rate improvement from 45% to 50% and a 36% lead volume increase.</li>
+          <li>Paid Search generates the highest lead volume at 1,500 but carries the second-lowest close rate at 36%, suggesting reallocation toward Referral and Email would increase program efficiency without increasing spend.</li>
+        </ul>
+        <div class="stat-grid">
+          <div class="stat-card">
+            <div class="stat-lbl">TOTAL REVENUE 2025</div>
+            <div class="stat-num">$6.27M</div>
+            <div class="stat-delta">+21% vs 2024</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-lbl">CLOSED WON</div>
+            <div class="stat-num">663</div>
+            <div class="stat-delta">+17% vs 2024</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-lbl">TOP CHANNEL</div>
+            <div class="stat-num" style="font-size:14px;">Referral</div>
+            <div class="stat-delta">$1.75M · 63% close rate</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const cleanMeta = {
+  '2023': { hl: 'AI CLEANED · 2023 DATASET · 6 CHANNELS', badge: 'AI STRUCTURED · 6 CHANNELS' },
+  '2024': { hl: 'AI CLEANED · 2024 DATASET · 8 CHANNELS', badge: 'AI STRUCTURED · 8 CHANNELS' },
+  '2025': { hl: 'AI CLEANED · 2025 DATASET · 9 CHANNELS', badge: 'AI STRUCTURED · 9 CHANNELS' },
+};
+const rawMeta = {
+  '2023': 'marketing_raw_export_2023.csv',
+  '2024': 'marketing_raw_export_2024.csv',
+  '2025': 'marketing_raw_export_2025.csv',
+};
+
+function switchYear(yr, btn, tab) {
+  const group = btn.closest('.yr-switcher');
+  group.querySelectorAll('.yr-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('#' + tab + ' .yrtable').forEach(t => t.classList.remove('active'));
+  const target = document.getElementById(tab + '-' + yr);
+  if (target) target.classList.add('active');
+  if (tab === 'raw') document.getElementById('raw-fname').textContent = rawMeta[yr];
+  if (tab === 'clean') {
+    document.getElementById('clean-hl').textContent = cleanMeta[yr].hl;
+    document.getElementById('clean-badge').textContent = cleanMeta[yr].badge;
+  }
+}
+
+function show(id, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+  if (id === 'chart') renderBars();
+}
+
+const data = [
+  { ch: 'Referral',     v: [1056000, 1380000, 1752000] },
+  { ch: 'Email',        v: [684000,  876000,  1140000] },
+  { ch: 'Paid Search',  v: [488000,  624000,  776000]  },
+  { ch: 'Direct',       v: [336000,  432000,  568000]  },
+  { ch: 'Paid Social',  v: [320000,  400000,  504000]  },
+  { ch: 'Influencer',   v: [0,       208000,  432000]  },
+  { ch: 'Affiliates',   v: [0,       208000,  432000]  },
+  { ch: 'Partnerships', v: [0,       0,       360000]  },
+];
+const colors = ['#4a3020', '#c07030', '#e8a040'];
+const years = ['2023', '2024', '2025'];
+
+function renderBars() {
+  const g = document.getElementById('barGroup');
+  if (g.dataset.rendered) return;
+  g.dataset.rendered = '1';
+  const max = 1800000;
+
+  data.forEach(({ ch, v }) => {
+    years.forEach((yr, i) => {
+      const val = v[i];
+      const row = document.createElement('div');
+      row.className = 'bar-row';
+      if (val === 0) {
+        row.innerHTML = `<span class="bar-ch ${i===0?'':'empty'}">${i===0?ch:''}</span><span class="bar-yr" style="color:#252525;">${yr}</span><div class="bar-track"></div><span class="bar-val" style="color:#252525;">--</span>`;
+      } else {
+        const pct = Math.round((val / max) * 100);
+        row.innerHTML = `<span class="bar-ch ${i===0?'':'empty'}">${i===0?ch:''}</span><span class="bar-yr">${yr}</span><div class="bar-track"><div class="bar-fill" style="width:0%;background:${colors[i]}" data-pct="${pct}"></div></div><span class="bar-val">$${(val/1000).toFixed(0)}K</span>`;
+      }
+      g.appendChild(row);
+    });
+    const sep = document.createElement('div');
+    sep.className = 'bar-sep';
+    g.appendChild(sep);
+  });
+
+  setTimeout(() => {
+    document.querySelectorAll('.bar-fill').forEach(b => { b.style.width = b.dataset.pct + '%'; });
+  }, 80);
+}
+</script>

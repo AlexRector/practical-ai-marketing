@@ -1,0 +1,471 @@
+
+<h2 class="sr-only">Section 7: Interactive Experience — 3 year lookback and projection tool</h2>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font-sans, system-ui, sans-serif); }
+  .shell { background: #111; border: 1px solid #222; }
+  .topbar { background: #181818; border-bottom: 1px solid #222; padding: 8px 14px; display: flex; align-items: center; justify-content: space-between; }
+  .topbar-left { display: flex; align-items: center; gap: 10px; }
+  .dot { width: 7px; height: 7px; border-radius: 50%; background: #2e2e2e; display: inline-block; }
+  .topbar-title { font-size: 11px; color: #555; letter-spacing: 0.06em; }
+  .topbar-badge { font-size: 9px; color: #d07010; background: #1a1000; border: 1px solid #2e1c00; padding: 3px 8px; letter-spacing: 0.06em; }
+  .prompt-strip { background: #0f0f0f; border-bottom: 1px solid #1e1e1e; padding: 10px 14px; font-size: 11px; color: #555; font-family: 'Courier New', monospace; line-height: 1.6; }
+  .prompt-label { font-size: 9px; color: #d07010; letter-spacing: 0.1em; margin-bottom: 4px; font-family: var(--font-sans); font-weight: 500; }
+  .tab-row { display: flex; border-bottom: 1px solid #2a2a2a; background: #141414; }
+  .tab { padding: 8px 18px; font-size: 11px; cursor: pointer; color: #555; background: #141414; border: 1px solid #333; border-bottom: none; margin-right: 2px; letter-spacing: 0.04em; }
+  .tab.active { background: #111; color: #c8c8c8; border-color: #d07010; border-bottom: 1px solid #111; }
+  .tab:hover { color: #c8c8c8; border-color: #d07010; }
+  .panel { display: none; }
+  .panel.active { display: block; }
+  .section-header { background: #141414; border-bottom: 1px solid #1e1e1e; padding: 8px 16px; display: flex; align-items: center; justify-content: space-between; }
+  .section-header-title { font-size: 10px; color: #666; letter-spacing: 0.06em; }
+  .badge { font-size: 9px; color: #d07010; background: #1a1000; border: 1px solid #2e1c00; padding: 3px 8px; letter-spacing: 0.06em; }
+
+  .lb-kpi-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 1px; background: #1e1e1e; }
+  .lb-kpi { background: #111; padding: 14px 16px; }
+  .lb-kpi-label { font-size: 9px; color: #3a3a3a; letter-spacing: 0.09em; margin-bottom: 5px; }
+  .lb-kpi-val { font-size: 22px; color: #c8c8c8; font-family: 'Courier New', monospace; font-weight: 600; }
+  .lb-kpi-val.orange { color: #d07010; }
+  .lb-kpi-delta { font-size: 10px; color: #4a9a5a; margin-top: 3px; }
+
+  .lb-body { display: grid; grid-template-columns: 1fr 280px; gap: 1px; background: #1e1e1e; min-height: 480px; }
+  .lb-chart-col { background: #111; padding: 16px; display: flex; flex-direction: column; }
+  .lb-chart-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; flex-shrink: 0; }
+  .lb-chart-label { font-size: 9px; color: #444; letter-spacing: 0.1em; }
+  .lb-bars-area { flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
+  .lb-legend { display: flex; gap: 14px; margin-top: 14px; padding-top: 10px; border-top: 1px solid #1a1a1a; flex-shrink: 0; }
+  .lb-legend-item { font-size: 9px; color: #444; display: flex; align-items: center; gap: 4px; }
+  .lb-legend-swatch { width: 10px; height: 3px; display: inline-block; }
+
+  .lb-side { background: #0f0f0f; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+  .lb-side-title { font-size: 9px; color: #444; letter-spacing: 0.1em; padding-bottom: 6px; border-bottom: 1px solid #1a1a1a; flex-shrink: 0; }
+
+  .yr-toggle { display: flex; gap: 4px; }
+  .yr-btn { font-size: 9px; color: #555; background: #161616; border: 1px solid #222; padding: 4px 10px; cursor: pointer; letter-spacing: 0.04em; }
+  .yr-btn.active { color: #d07010; border-color: #d07010; background: #1a1000; }
+  .yr-btn:hover { border-color: #d07010; color: #d07010; }
+
+  /* BIGGER BAR LABELS */
+  .ch-bar-row { display: flex; align-items: center; gap: 8px; }
+  .ch-bar-label { font-size: 12px; color: #888; font-family: 'Courier New', monospace; width: 92px; text-align: right; flex-shrink: 0; }
+  .ch-bar-track { flex: 1; background: #1a1a1a; }
+  .ch-bar-fill { transition: width 0.5s ease; }
+  .ch-bar-val { font-size: 12px; color: #aaa; font-family: 'Courier New', monospace; width: 60px; flex-shrink: 0; }
+
+  .insight-card { background: #141414; border: 1px solid #1e1e1e; padding: 10px 12px; }
+  .insight-label { font-size: 9px; color: #3a3a3a; letter-spacing: 0.08em; margin-bottom: 4px; }
+  .insight-text { font-size: 11px; color: #888; line-height: 1.55; }
+  .insight-text .hi { color: #c8c8c8; }
+  .insight-text .org { color: #d07010; }
+  .insight-text .grn { color: #4a9a5a; }
+
+  .proj-layout { display: grid; grid-template-columns: 290px 1fr; gap: 1px; background: #1e1e1e; min-height: 560px; }
+  .ctrl-panel { background: #0f0f0f; padding: 14px; display: flex; flex-direction: column; gap: 16px; overflow-y: auto; }
+  .ctrl-section-title { font-size: 9px; color: #444; letter-spacing: 0.1em; padding-bottom: 6px; border-bottom: 1px solid #1a1a1a; margin-bottom: 6px; }
+  .ctrl-group { display: flex; flex-direction: column; gap: 4px; margin-bottom: 8px; }
+  .ctrl-label { font-size: 10px; color: #666; display: flex; justify-content: space-between; align-items: center; }
+  .ctrl-label span { font-size: 10px; color: #d07010; font-family: 'Courier New', monospace; }
+  input[type=range] { width: 100%; appearance: none; height: 3px; background: #1e1e1e; outline: none; cursor: pointer; }
+  input[type=range]::-webkit-slider-thumb { appearance: none; width: 13px; height: 13px; background: #d07010; cursor: pointer; }
+  input[type=range]::-moz-range-thumb { width: 13px; height: 13px; background: #d07010; border: none; cursor: pointer; }
+  .range-ends { display: flex; justify-content: space-between; font-size: 8px; color: #2a2a2a; font-family: 'Courier New', monospace; }
+  .spend-row { display: flex; flex-direction: column; gap: 4px; margin-bottom: 10px; }
+  .spend-label { font-size: 10px; color: #666; display: flex; justify-content: space-between; }
+  .spend-val { color: #c8c8c8; font-family: 'Courier New', monospace; font-size: 10px; }
+  .spend-impact { font-size: 9px; color: #555; margin-top: 1px; font-style: italic; }
+
+  .exp-grid { display: flex; flex-direction: column; gap: 6px; }
+  .exp-row { display: flex; align-items: center; justify-content: space-between; padding: 7px 9px; border: 1px solid #1e1e1e; background: #111; cursor: pointer; transition: border-color 0.15s; }
+  .exp-row:hover { border-color: #555; }
+  .exp-row.active { border-color: #d07010; background: #161206; }
+  .exp-row-left { display: flex; flex-direction: column; gap: 2px; }
+  .exp-name { font-size: 10px; color: #777; }
+  .exp-row.active .exp-name { color: #d07010; }
+  .exp-meta { font-size: 9px; color: #2e2e2e; }
+  .exp-toggle { width: 28px; height: 14px; background: #1a1a1a; border: 1px solid #2a2a2a; position: relative; flex-shrink: 0; }
+  .exp-toggle-inner { width: 10px; height: 10px; background: #333; position: absolute; top: 1px; left: 1px; transition: all 0.2s; }
+  .exp-row.active .exp-toggle { border-color: #d07010; background: #1a1000; }
+  .exp-row.active .exp-toggle-inner { background: #d07010; left: 15px; }
+
+  .proj-right { background: #111; display: flex; flex-direction: column; }
+  .proj-kpi-strip { display: grid; grid-template-columns: repeat(3,1fr); gap: 1px; background: #1e1e1e; flex-shrink: 0; }
+  .proj-kpi-card { background: #111; padding: 12px 14px; }
+  .proj-kpi-lbl { font-size: 9px; color: #3a3a3a; letter-spacing: 0.08em; margin-bottom: 4px; }
+  .proj-kpi-prev { font-size: 9px; color: #2e2e2e; font-family: 'Courier New', monospace; margin-bottom: 2px; }
+  .proj-kpi-num { font-size: 20px; color: #c8c8c8; font-family: 'Courier New', monospace; font-weight: 600; line-height: 1; }
+  .proj-kpi-chg { font-size: 10px; color: #4a9a5a; margin-top: 3px; }
+  .proj-kpi-chg.neg { color: #a04030; }
+
+  .proj-chart-area { flex: 1; padding: 16px; display: flex; flex-direction: column; }
+  .proj-chart-title { font-size: 9px; color: #444; letter-spacing: 0.1em; margin-bottom: 12px; flex-shrink: 0; }
+  .proj-bars-area { flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
+  .proj-assumption { font-size: 9px; color: #2a2a2a; font-style: italic; margin-top: 12px; padding-top: 8px; border-top: 1px solid #1a1a1a; line-height: 1.6; flex-shrink: 0; }
+
+  .proj-exp-callout { margin: 0 16px; background: #0f0d00; border: 1px solid #2a2000; padding: 10px 12px; display: none; flex-shrink: 0; }
+  .proj-exp-callout.visible { display: block; }
+  .proj-exp-title { font-size: 9px; color: #d07010; letter-spacing: 0.08em; margin-bottom: 6px; }
+  .proj-exp-row { display: flex; justify-content: space-between; font-size: 10px; color: #666; padding: 3px 0; border-bottom: 1px solid #1a1200; }
+  .proj-exp-row:last-child { border: none; }
+  .proj-exp-row span { color: #c8c8c8; font-family: 'Courier New', monospace; }
+  .halo-note { font-size: 9px; color: #3a3a3a; font-style: italic; padding: 6px 16px 0; flex-shrink: 0; }
+</style>
+
+<div class="shell">
+  <div class="topbar">
+    <div class="topbar-left">
+      <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+      <span class="topbar-title">PIPELINE PERFORMANCE TOOL · INTERACTIVE</span>
+    </div>
+    <span class="topbar-badge">LIVE DATA</span>
+  </div>
+
+  <div class="prompt-strip">
+    <div class="prompt-label">AI PROMPT</div>
+    Using our 3-year marketing dataset, build an interactive executive tool showing program performance across channels with a lookback summary and a forward projection model based on budget shift scenarios.
+  </div>
+
+  <div class="tab-row">
+    <div class="tab active" onclick="showTab('lookback',this)">3-YEAR LOOKBACK</div>
+    <div class="tab" onclick="showTab('projections',this)">2026 PROJECTIONS</div>
+  </div>
+
+  <div id="lookback" class="panel active">
+    <div class="section-header">
+      <span class="section-header-title">PROGRAM PERFORMANCE · 2023 TO 2025 · ALL CHANNELS</span>
+      <span class="badge">DATASET LOADED</span>
+    </div>
+    <div class="lb-kpi-row">
+      <div class="lb-kpi"><div class="lb-kpi-label">TOTAL REVENUE</div><div class="lb-kpi-val" id="kpi-rev">$6.27M</div><div class="lb-kpi-delta" id="kpi-rev-d">+21% vs 2024</div></div>
+      <div class="lb-kpi"><div class="lb-kpi-label">CLOSED WON</div><div class="lb-kpi-val" id="kpi-closed">663</div><div class="lb-kpi-delta" id="kpi-closed-d">+17% vs 2024</div></div>
+      <div class="lb-kpi"><div class="lb-kpi-label">OPPORTUNITIES</div><div class="lb-kpi-val" id="kpi-opps">1,554</div><div class="lb-kpi-delta" id="kpi-opps-d">+34% vs 2024</div></div>
+      <div class="lb-kpi"><div class="lb-kpi-label">AVG CLOSE RATE</div><div class="lb-kpi-val orange" id="kpi-close">43%</div><div class="lb-kpi-delta" id="kpi-close-d">+3pts vs 2024</div></div>
+    </div>
+    <div class="lb-body">
+      <div class="lb-chart-col">
+        <div class="lb-chart-header">
+          <div class="lb-chart-label">REVENUE BY CHANNEL</div>
+          <div class="yr-toggle">
+            <div class="yr-btn" onclick="setYear('2023',this)">2023</div>
+            <div class="yr-btn" onclick="setYear('2024',this)">2024</div>
+            <div class="yr-btn active" onclick="setYear('2025',this)">2025</div>
+            <div class="yr-btn" onclick="setYear('all',this)">ALL</div>
+          </div>
+        </div>
+        <div class="lb-bars-area" id="channelBars"></div>
+        <div class="lb-legend">
+          <span class="lb-legend-item"><span class="lb-legend-swatch" style="background:#3a2010;"></span>2023</span>
+          <span class="lb-legend-item"><span class="lb-legend-swatch" style="background:#8a4a18;"></span>2024</span>
+          <span class="lb-legend-item" style="color:#d07010;"><span class="lb-legend-swatch" style="background:#e8a040;"></span>2025</span>
+        </div>
+      </div>
+      <div class="lb-side">
+        <div class="lb-side-title">AI INSIGHTS · 2023 TO 2025</div>
+        <div class="insight-card"><div class="insight-label">GROWTH DRIVER</div><div class="insight-text"><span class="grn">Referral</span> grew from <span class="hi">$1.06M to $1.75M</span> on under 600 leads. Highest efficiency channel by far.</div></div>
+        <div class="insight-card"><div class="insight-label">MOST IMPROVED</div><div class="insight-text"><span class="grn">Email</span> close rate improved from <span class="hi">45% to 50%</span> while revenue grew <span class="hi">67%</span>.</div></div>
+        <div class="insight-card"><div class="insight-label">BUDGET MISMATCH</div><div class="insight-text"><span class="org">Paid Search</span> closes at only <span class="hi">36%</span> on 1,500 leads. Spend does not match return.</div></div>
+        <div class="insight-card"><div class="insight-label">NEW CHANNELS</div><div class="insight-text"><span class="hi">Partnerships</span> launched in 2025 with a <span class="grn">50% close rate</span>. Early signal is strong.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="projections" class="panel">
+    <div class="section-header">
+      <span class="section-header-title">2026 PROJECTION MODEL · ADJUST CHANNELS AND SPEND BELOW</span>
+      <span class="badge">INTERACTIVE</span>
+    </div>
+    <div class="proj-layout">
+      <div class="ctrl-panel">
+        <div>
+          <div class="ctrl-section-title">PROGRAM GROWTH</div>
+          <div class="ctrl-group">
+            <div class="ctrl-label">Lead Volume Growth <span id="lbl-leads">+15%</span></div>
+            <input type="range" min="0" max="40" value="15" id="sl-leads" oninput="updateProj()">
+            <div class="range-ends"><span>0%</span><span>+40%</span></div>
+          </div>
+          <div class="ctrl-group">
+            <div class="ctrl-label">Close Rate Improvement <span id="lbl-close">+3pts</span></div>
+            <input type="range" min="0" max="15" value="3" id="sl-close" oninput="updateProj()">
+            <div class="range-ends"><span>0pts</span><span>+15pts</span></div>
+          </div>
+        </div>
+        <div>
+          <div class="ctrl-section-title">PAID CHANNEL SPEND</div>
+          <div class="spend-row">
+            <div class="spend-label"><span>Paid Search</span><span class="spend-val" id="sl-ps-val">$776K</span></div>
+            <input type="range" min="20" max="180" value="100" id="sl-ps" oninput="updateProj()">
+            <div class="range-ends"><span>-80%</span><span>+80%</span></div>
+          </div>
+          <div class="spend-row">
+            <div class="spend-label"><span>Paid Social</span><span class="spend-val" id="sl-psoc-val">$504K</span></div>
+            <input type="range" min="20" max="180" value="100" id="sl-psoc" oninput="updateProj()">
+            <div class="range-ends"><span>-80%</span><span>+80%</span></div>
+            <div class="spend-impact" id="psoc-impact"></div>
+          </div>
+          <div class="spend-row">
+            <div class="spend-label"><span>Influencer</span><span class="spend-val" id="sl-inf-val">$432K</span></div>
+            <input type="range" min="20" max="180" value="100" id="sl-inf" oninput="updateProj()">
+            <div class="range-ends"><span>-80%</span><span>+80%</span></div>
+          </div>
+        </div>
+        <div>
+          <div class="ctrl-section-title">EXPERIMENTAL CHANNELS</div>
+          <div class="exp-grid">
+            <div class="exp-row" onclick="toggleExp(this,'podcast')" id="exp-podcast">
+              <div class="exp-row-left"><div class="exp-name">Podcast Sponsorship</div><div class="exp-meta">38% close · $120K budget</div></div>
+              <div class="exp-toggle"><div class="exp-toggle-inner"></div></div>
+            </div>
+            <div class="exp-row" onclick="toggleExp(this,'community')" id="exp-community">
+              <div class="exp-row-left"><div class="exp-name">Community / Slack Groups</div><div class="exp-meta">44% close · $60K budget</div></div>
+              <div class="exp-toggle"><div class="exp-toggle-inner"></div></div>
+            </div>
+            <div class="exp-row" onclick="toggleExp(this,'yt')" id="exp-yt">
+              <div class="exp-row-left"><div class="exp-name">YouTube / Video Content</div><div class="exp-meta">32% close · $90K budget</div></div>
+              <div class="exp-toggle"><div class="exp-toggle-inner"></div></div>
+            </div>
+            <div class="exp-row" onclick="toggleExp(this,'partner')" id="exp-partner">
+              <div class="exp-row-left"><div class="exp-name">Partner Co-Marketing</div><div class="exp-meta">52% close · $75K budget</div></div>
+              <div class="exp-toggle"><div class="exp-toggle-inner"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="proj-right">
+        <div class="proj-kpi-strip">
+          <div class="proj-kpi-card">
+            <div class="proj-kpi-lbl">PROJECTED REVENUE</div>
+            <div class="proj-kpi-prev">2025: $6.27M</div>
+            <div class="proj-kpi-num" id="p-rev">--</div>
+            <div class="proj-kpi-chg" id="p-rev-chg"></div>
+          </div>
+          <div class="proj-kpi-card">
+            <div class="proj-kpi-lbl">PROJECTED OPPORTUNITIES</div>
+            <div class="proj-kpi-prev">2025: 1,554</div>
+            <div class="proj-kpi-num" id="p-opps">--</div>
+            <div class="proj-kpi-chg" id="p-opps-chg"></div>
+          </div>
+          <div class="proj-kpi-card">
+            <div class="proj-kpi-lbl">PROJECTED CLOSED WON</div>
+            <div class="proj-kpi-prev">2025: 663</div>
+            <div class="proj-kpi-num" id="p-closed">--</div>
+            <div class="proj-kpi-chg" id="p-closed-chg"></div>
+          </div>
+        </div>
+
+        <div class="proj-exp-callout" id="expCallout">
+          <div class="proj-exp-title">EXPERIMENTAL CHANNEL PROJECTIONS</div>
+          <div id="expRows"></div>
+        </div>
+
+        <div id="haloNote" class="halo-note" style="display:none;"></div>
+
+        <div class="proj-chart-area">
+          <div class="proj-chart-title">PROJECTED REVENUE BY CHANNEL · 2026</div>
+          <div class="proj-bars-area" id="projBars"></div>
+          <div class="proj-assumption" id="proj-assumption"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const histData = {
+  '2023': { Referral:1056000, Email:684000, 'Paid Search':488000, Direct:336000, 'Paid Social':320000, Organic:200000, Influencer:0, Affiliates:0, Partnerships:0 },
+  '2024': { Referral:1380000, Email:876000, 'Paid Search':624000, Direct:432000, 'Paid Social':400000, Organic:248000, Influencer:208000, Affiliates:208000, Partnerships:0 },
+  '2025': { Referral:1752000, Email:1140000, 'Paid Search':776000, Direct:568000, 'Paid Social':504000, Organic:304000, Influencer:432000, Affiliates:432000, Partnerships:360000 },
+};
+const kpis = {
+  '2023': { rev:'$3.08M', closed:'313', opps:'845',   close:'38%', revD:null, closedD:null, oppsD:null, closeD:null },
+  '2024': { rev:'$5.17M', closed:'453', opps:'1,161', close:'40%', revD:'+68% vs 2023', closedD:'+45% vs 2023', oppsD:'+37% vs 2023', closeD:'+2pts vs 2023' },
+  '2025': { rev:'$6.27M', closed:'663', opps:'1,554', close:'43%', revD:'+21% vs 2024', closedD:'+17% vs 2024', oppsD:'+34% vs 2024', closeD:'+3pts vs 2024' },
+  'all':  { rev:'$14.52M',closed:'1,429',opps:'3,560',close:'41%', revD:'3-year total', closedD:'3-year total', oppsD:'3-year total', closeD:'3-year avg' },
+};
+const barColors = { '2023':'#3a2010','2024':'#8a4a18','2025':'#e8a040','all':'#e8a040' };
+const expChannels = {
+  podcast:  { name:'Podcast Sponsorship',  closeRate:0.38, budget:120000, avgDeal:8000  },
+  community:{ name:'Community / Slack',     closeRate:0.44, budget:60000,  avgDeal:7000  },
+  yt:       { name:'YouTube / Video',       closeRate:0.32, budget:90000,  avgDeal:6500  },
+  partner:  { name:'Partner Co-Marketing',  closeRate:0.52, budget:75000,  avgDeal:9500  },
+};
+const activeExp = new Set();
+
+function toggleExp(el, key) {
+  el.classList.toggle('active');
+  activeExp.has(key) ? activeExp.delete(key) : activeExp.add(key);
+  updateProj();
+}
+
+const fmt = v => v >= 1000000 ? '$'+(v/1000000).toFixed(2)+'M' : '$'+(v/1000).toFixed(0)+'K';
+const pct = (n,b) => { const p = Math.round(((n-b)/b)*100); return (p>=0?'+':'')+p+'%'; };
+
+function updateProj() {
+  const leadGrowth   = parseFloat(document.getElementById('sl-leads').value) / 100;
+  const closeImprove = parseFloat(document.getElementById('sl-close').value) / 100;
+  const psScale      = parseFloat(document.getElementById('sl-ps').value) / 100;
+  const psocScale    = parseFloat(document.getElementById('sl-psoc').value) / 100;
+  const infScale     = parseFloat(document.getElementById('sl-inf').value) / 100;
+
+  document.getElementById('lbl-leads').textContent = '+' + Math.round(leadGrowth*100) + '%';
+  document.getElementById('lbl-close').textContent = '+' + Math.round(closeImprove*100) + 'pts';
+
+  const psocDelta = psocScale - 1.0;
+  const haloFactor = psocDelta * 0.25;
+
+  const base = { ref:1752000, email:1140000, ps:776000, psoc:504000, inf:432000, direct:568000, organic:304000, aff:432000, part:360000 };
+
+  const projRef    = base.ref   * (1 + leadGrowth*0.55 + closeImprove*0.45 + Math.max(0,haloFactor)*0.4);
+  const projEmail  = base.email * (1 + leadGrowth*0.5  + closeImprove*0.55 + Math.max(0,haloFactor)*0.35);
+  const projPS     = base.ps    * psScale * (1 + leadGrowth*0.3 + Math.max(0,haloFactor)*0.3);
+  const projPsoc   = base.psoc  * psocScale * (1 + leadGrowth*0.25);
+  const projInf    = base.inf   * infScale  * (1 + leadGrowth*0.35);
+  const projDirect  = base.direct  * (1 + leadGrowth*0.4);
+  const projOrganic = base.organic * (1 + leadGrowth*0.3);
+  const projAff     = base.aff     * (1 + leadGrowth*0.4 + closeImprove*0.3);
+  const projPart    = base.part    * (1 + leadGrowth*0.6 + closeImprove*0.4);
+
+  document.getElementById('sl-ps-val').textContent   = fmt(projPS);
+  document.getElementById('sl-psoc-val').textContent = fmt(projPsoc);
+  document.getElementById('sl-inf-val').textContent  = fmt(projInf);
+
+  const haloEl = document.getElementById('haloNote');
+  if (psocDelta > 0.15) {
+    const haloImpact = Math.round(haloFactor * 100);
+    haloEl.style.display = 'block';
+    haloEl.textContent = `Increased Paid Social spend is driving an estimated ${haloImpact}% awareness halo, lifting projected volumes for Referral, Email, and Paid Search.`;
+  } else {
+    haloEl.style.display = 'none';
+  }
+
+  const impactEl = document.getElementById('psoc-impact');
+  if (psocDelta > 0.1) {
+    impactEl.textContent = `Halo effect lifting Referral, Email, Paid Search`;
+    impactEl.style.color = '#4a9a5a';
+  } else if (psocDelta < -0.1) {
+    impactEl.textContent = `Reduced awareness may compress referral intake`;
+    impactEl.style.color = '#a04030';
+  } else {
+    impactEl.textContent = '';
+  }
+
+  let expRevenue = 0, expOpps = 0;
+  const expRows = [];
+  activeExp.forEach(key => {
+    const ch = expChannels[key];
+    const leads  = Math.round(ch.budget / 200);
+    const opps   = Math.round(leads * 0.3);
+    const closed = Math.round(opps * ch.closeRate);
+    const rev    = closed * ch.avgDeal;
+    expRevenue += rev; expOpps += opps;
+    expRows.push({ name:ch.name, opps, closed, rev });
+  });
+
+  const baseOpps=1554, baseClosed=663, baseTotalRev=6268000;
+  const projOpps   = Math.round(baseOpps   * (1 + leadGrowth*0.75 + closeImprove*0.2 + Math.max(0,haloFactor)*0.35) + expOpps);
+  const projClosed = Math.round(baseClosed * (1 + leadGrowth*0.7  + closeImprove*0.6) + expRows.reduce((s,r)=>s+r.closed,0));
+  const totalRev   = projRef+projEmail+projPS+projPsoc+projInf+projDirect+projOrganic+projAff+projPart+expRevenue;
+
+  document.getElementById('p-rev').textContent    = fmt(totalRev);
+  const revChg = Math.round(((totalRev-baseTotalRev)/baseTotalRev)*100);
+  const revChgEl = document.getElementById('p-rev-chg');
+  revChgEl.textContent = (revChg>=0?'+':'')+revChg+'%';
+  revChgEl.className = 'proj-kpi-chg'+(revChg<0?' neg':'');
+
+  document.getElementById('p-opps').textContent = projOpps.toLocaleString();
+  const oppChg = Math.round(((projOpps-baseOpps)/baseOpps)*100);
+  const oppEl = document.getElementById('p-opps-chg');
+  oppEl.textContent = (oppChg>=0?'+':'')+oppChg+'%';
+  oppEl.className = 'proj-kpi-chg'+(oppChg<0?' neg':'');
+
+  document.getElementById('p-closed').textContent = projClosed.toLocaleString();
+  const closedChg = Math.round(((projClosed-baseClosed)/baseClosed)*100);
+  const closedEl = document.getElementById('p-closed-chg');
+  closedEl.textContent = (closedChg>=0?'+':'')+closedChg+'%';
+  closedEl.className = 'proj-kpi-chg'+(closedChg<0?' neg':'');
+
+  const callout = document.getElementById('expCallout');
+  document.getElementById('expRows').innerHTML = expRows.map(r =>
+    `<div class="proj-exp-row">${r.name}<span>${fmt(r.rev)} · ${r.opps} opps · ${r.closed} closed</span></div>`
+  ).join('');
+  callout.classList.toggle('visible', activeExp.size > 0);
+
+  const channels = [
+    { ch:'Referral',     val:projRef,     col:'#e8a040' },
+    { ch:'Email',        val:projEmail,   col:'#c07030' },
+    { ch:'Paid Search',  val:projPS,      col:'#5a3a20' },
+    { ch:'Paid Social',  val:projPsoc,    col:'#4a3020' },
+    { ch:'Influencer',   val:projInf,     col:'#3a2818' },
+    { ch:'Affiliates',   val:projAff,     col:'#2e2416' },
+    { ch:'Direct',       val:projDirect,  col:'#2a2010' },
+    { ch:'Partnerships', val:projPart,    col:'#362010' },
+    { ch:'Organic',      val:projOrganic, col:'#222' },
+  ];
+  expRows.forEach(r => channels.push({ ch:r.name, val:r.rev, col:'#5a3a00' }));
+  channels.sort((a,b)=>b.val-a.val);
+
+  const g = document.getElementById('projBars');
+  g.innerHTML = '';
+  const max = channels[0].val;
+  const barH = Math.max(12, Math.floor(320 / (channels.length + 1)));
+  channels.forEach(({ch,val,col}) => {
+    const p = Math.round((val/max)*100);
+    const row = document.createElement('div');
+    row.className = 'ch-bar-row';
+    row.style.marginBottom = '7px';
+    row.innerHTML = `<span class="ch-bar-label">${ch}</span><div class="ch-bar-track" style="height:${barH}px;"><div class="ch-bar-fill" style="width:${p}%;height:100%;background:${col};"></div></div><span class="ch-bar-val">${fmt(val)}</span>`;
+    g.appendChild(row);
+  });
+
+  const parts = [`+${Math.round(leadGrowth*100)}% lead growth`,`+${Math.round(closeImprove*100)}pt close rate`];
+  if (psScale!==1) parts.push(`Paid Search at ${Math.round(psScale*100)}%`);
+  if (psocScale!==1) parts.push(`Paid Social at ${Math.round(psocScale*100)}%`);
+  if (infScale!==1) parts.push(`Influencer at ${Math.round(infScale*100)}%`);
+  if (activeExp.size>0) parts.push(`${activeExp.size} experimental channel${activeExp.size>1?'s':''} active`);
+  document.getElementById('proj-assumption').textContent = 'Assumptions: '+parts.join(', ')+'.';
+}
+
+function renderBars(year) {
+  const g = document.getElementById('channelBars');
+  g.innerHTML = '';
+  const d = year==='all'
+    ? Object.fromEntries(Object.keys(histData['2025']).map(k=>[k,(histData['2023'][k]||0)+(histData['2024'][k]||0)+(histData['2025'][k]||0)]))
+    : histData[year];
+  const sorted = Object.entries(d).filter(([,v])=>v>0).sort((a,b)=>b[1]-a[1]);
+  const max = sorted[0][1];
+  const barH = Math.max(12, Math.floor(380 / (sorted.length + 1)));
+  sorted.forEach(([ch,val]) => {
+    const p = Math.round((val/max)*100);
+    const row = document.createElement('div');
+    row.className = 'ch-bar-row';
+    row.style.marginBottom = '7px';
+    row.innerHTML = `<span class="ch-bar-label">${ch}</span><div class="ch-bar-track" style="height:${barH}px;"><div class="ch-bar-fill" style="width:0%;height:100%;background:${barColors[year]||'#e8a040'}" data-pct="${p}"></div></div><span class="ch-bar-val">${val>=1000000?'$'+(val/1000000).toFixed(2)+'M':'$'+(val/1000).toFixed(0)+'K'}</span>`;
+    g.appendChild(row);
+  });
+  setTimeout(()=>{ g.querySelectorAll('.ch-bar-fill').forEach(b=>{ b.style.width=b.dataset.pct+'%'; }); },60);
+}
+
+function setYear(yr, btn) {
+  document.querySelectorAll('.yr-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  const k = kpis[yr];
+  document.getElementById('kpi-rev').textContent     = k.rev;
+  document.getElementById('kpi-closed').textContent  = k.closed;
+  document.getElementById('kpi-opps').textContent    = k.opps;
+  document.getElementById('kpi-close').textContent   = k.close;
+  document.getElementById('kpi-rev-d').textContent   = k.revD   || '';
+  document.getElementById('kpi-closed-d').textContent= k.closedD|| '';
+  document.getElementById('kpi-opps-d').textContent  = k.oppsD  || '';
+  document.getElementById('kpi-close-d').textContent = k.closeD || '';
+  renderBars(yr);
+}
+
+function showTab(id, btn) {
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+  if (id==='projections') updateProj();
+}
+
+renderBars('2025');
+</script>
