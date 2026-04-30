@@ -4,11 +4,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Practical AI for Marketing Teams</title>
-
-  <!-- Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
 
   <style>
+    * { box-sizing: border-box; }
+
     body {
       margin: 0;
       background: #0f0f0f;
@@ -18,7 +18,7 @@
     }
 
     .page {
-      max-width: 980px;
+      max-width: 1320px;
       margin: 0 auto;
       padding: 80px 28px;
     }
@@ -31,193 +31,290 @@
       margin-bottom: 16px;
     }
 
-    h1 {
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      font-size: 44px;
-      font-weight: 700;
-      line-height: 1.1;
+    h1, h2, h3 {
+      font-family: 'Plus Jakarta Sans', Arial, sans-serif;
       letter-spacing: -0.02em;
-      margin: 0 0 20px;
+    }
+
+    h1 {
+      font-size: 52px;
+      line-height: 1.05;
+      margin: 0 0 18px;
       color: #f2f2f2;
     }
 
     .intro {
       font-size: 17px;
-      color: #9a9a9a;
-      max-width: 760px;
-      margin-bottom: 48px;
+      color: #aaa;
+      max-width: 800px;
+      margin-bottom: 56px;
     }
+
+    .intro strong { color: #f0f0f0; }
 
     .section {
       border-top: 1px solid #222;
-      padding: 28px 0;
-    }
-
-    h2 {
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      font-size: 20px;
-      font-weight: 600;
-      color: #f0f0f0;
-      margin: 0 0 14px;
-    }
-
-    p {
-      margin: 0;
-      font-size: 15px;
-      color: #a0a0a0;
-    }
-
-    .principle {
-      background: #141414;
-      border-left: 3px solid #d07010;
-      padding: 18px 20px;
-      margin-top: 12px;
-    }
-
-    .grid {
+      padding: 48px 0;
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      grid-template-columns: minmax(320px, 420px) 1fr;
+      gap: 34px;
+      align-items: start;
+    }
+
+    .section-title {
+      font-size: 24px;
+      color: #f2f2f2;
+      margin: 0 0 22px;
+    }
+
+    .copy-block {
+      display: grid;
       gap: 14px;
-      margin-top: 20px;
     }
 
-    .card {
-      display: block;
-      text-decoration: none;
-      background: #141414;
-      border: 1px solid #222;
-      padding: 18px;
-      transition: border-color .15s ease, transform .15s ease;
-    }
-
-    .card:hover {
-      border-color: #d07010;
-      transform: translateY(-2px);
-    }
-
-    .card .num {
+    .copy-item .label {
       color: #d07010;
       font-size: 10px;
       letter-spacing: .12em;
       text-transform: uppercase;
-      margin-bottom: 8px;
+      margin-bottom: 3px;
     }
 
-    .card .title {
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      font-size: 16px;
-      font-weight: 600;
-      color: #f0f0f0;
-      margin-bottom: 6px;
+    .copy-item p {
+      margin: 0;
+      color: #aaa;
+      font-size: 14px;
     }
 
-    .card .desc {
-      font-size: 13px;
-      color: #666;
+    .tools {
+      color: #777 !important;
+      font-size: 13px !important;
+    }
+
+    .value {
+      color: #c8c8c8 !important;
+    }
+
+    .demo-shell {
+      background: #111;
+      border: 1px solid #222;
+      overflow: hidden;
+    }
+
+    .demo-top {
+      height: 36px;
+      background: #181818;
+      border-bottom: 1px solid #222;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 14px;
+    }
+
+    .demo-label {
+      color: #555;
+      font-size: 10px;
+      letter-spacing: .09em;
+      text-transform: uppercase;
+    }
+
+    .open-link {
+      color: #d07010;
+      text-decoration: none;
+      font-size: 11px;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+
+    .frame-wrap {
+      width: 100%;
+      height: 600px;
+      background: #0f0f0f;
+      overflow: hidden;
+    }
+
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: 0;
+      display: block;
+      background: #111;
     }
 
     .footer {
       border-top: 1px solid #222;
-      margin-top: 40px;
-      padding-top: 24px;
+      padding-top: 28px;
+      margin-top: 24px;
       color: #555;
       font-size: 13px;
+    }
+
+    @media (max-width: 980px) {
+      .section {
+        grid-template-columns: 1fr;
+      }
+
+      h1 {
+        font-size: 40px;
+      }
+
+      .frame-wrap {
+        height: 560px;
+      }
     }
   </style>
 </head>
 
 <body>
   <main class="page">
-
     <div class="eyebrow">AI Marketing Demo System</div>
 
     <h1>Practical AI for Marketing Teams</h1>
 
     <p class="intro">
-      Mocked-up, working AI use cases for marketing teams. No theory. Each example shows a business problem, the AI-supported process, and a usable output.
+      <strong>AI is not a side tool.</strong> It is a way to make teams faster, clearer, and more effective.
+      Below are practical ways AI can make an impact fast, without new systems, large budgets, or technical teams.
     </p>
 
     <section class="section">
-      <h2>What This Covers</h2>
-      <p>
-        Data cleaning, executive reporting, on-demand analysis, segmentation, campaign generation, interactive planning tools, internal knowledge systems, and meeting-to-task automation.
-      </p>
-    </section>
-
-    <section class="section">
-      <h2>Key Principle</h2>
-      <div class="principle">
-        All outputs are generated using existing data, without new systems, without heavy cleanup, and without dedicated analytics or IT resources.
+      <div>
+        <h2 class="section-title">1. Messy Data → Clear Reporting</h2>
+        <div class="copy-block">
+          <div class="copy-item"><div class="label">Problem</div><p>Marketing data is messy and takes too long to clean before it’s usable.</p></div>
+          <div class="copy-item"><div class="label">AI Process</div><p>Upload raw exports and use AI to clean, combine, and summarize the data.</p></div>
+          <div class="copy-item"><div class="label">Why This Works</div><p>Uses the data you already have. No new system needed.</p></div>
+          <div class="copy-item"><div class="label">Tools</div><p class="tools">ChatGPT · Claude · Excel · Google Sheets</p></div>
+          <div class="copy-item"><div class="label">Value</div><p class="value">Faster reporting, actionable information, better visualization, without IT or analytics involvement.</p></div>
+        </div>
+      </div>
+      <div class="demo-shell">
+        <div class="demo-top"><span class="demo-label">View Example</span><a class="open-link" href="Ex_Messy_Data_Ai_AdHoc_S1.html">Open full</a></div>
+        <div class="frame-wrap"><iframe src="Ex_Messy_Data_Ai_AdHoc_S1.html"></iframe></div>
       </div>
     </section>
 
     <section class="section">
-      <h2>What It Replaces</h2>
-      <p>
-        Manual reporting, fragmented tools, and slow execution cycles — replaced with fast, structured, high-quality outputs generated on demand.
-      </p>
+      <div>
+        <h2 class="section-title">2. Answer Questions Without Dashboards or Reports</h2>
+        <div class="copy-block">
+          <div class="copy-item"><div class="label">Problem</div><p>Getting answers from data usually requires building reports or dashboards with a specialist.</p></div>
+          <div class="copy-item"><div class="label">AI Process</div><p>Ask plain-English questions and let AI analyze your data and return answers.</p></div>
+          <div class="copy-item"><div class="label">Why This Works</div><p>Anyone can get useful insights without technical setup.</p></div>
+          <div class="copy-item"><div class="label">Tools</div><p class="tools">ChatGPT · Claude · CSV exports · Sheets</p></div>
+          <div class="copy-item"><div class="label">Value</div><p class="value">Faster answers, less dependency on tools, better visuals, cut CRM/analytics tech costs.</p></div>
+        </div>
+      </div>
+      <div class="demo-shell">
+        <div class="demo-top"><span class="demo-label">View Example</span><a class="open-link" href="Ex_Ai_Query_Data_On_Demand_S2.html">Open full</a></div>
+        <div class="frame-wrap"><iframe src="Ex_Ai_Query_Data_On_Demand_S2.html"></iframe></div>
+      </div>
     </section>
 
     <section class="section">
-      <h2>Open Working Examples</h2>
+      <div>
+        <h2 class="section-title">3. Shared Team Skill Library</h2>
+        <div class="copy-block">
+          <div class="copy-item"><div class="label">Problem</div><p>Each team member works differently, leading to inconsistent output.</p></div>
+          <div class="copy-item"><div class="label">AI Process</div><p>Crowdsource simple templates and prompts the whole team can reuse.</p></div>
+          <div class="copy-item"><div class="label">Why This Works</div><p>Makes good output repeatable across the team.</p></div>
+          <div class="copy-item"><div class="label">Tools</div><p class="tools">ChatGPT · Claude · Notion · Google Docs</p></div>
+          <div class="copy-item"><div class="label">Value</div><p class="value">Consistency and speed across all work, while helping the team deliver with more variety by leaning on each other’s expertise.</p></div>
+        </div>
+      </div>
+      <div class="demo-shell">
+        <div class="demo-top"><span class="demo-label">View Example</span><a class="open-link" href="Ex_Team_Ai_Skill_Library_S3.html">Open full</a></div>
+        <div class="frame-wrap"><iframe src="Ex_Team_Ai_Skill_Library_S3.html"></iframe></div>
+      </div>
+    </section>
 
-      <div class="grid">
+    <section class="section">
+      <div>
+        <h2 class="section-title">4. Consistent Brand Output</h2>
+        <div class="copy-block">
+          <div class="copy-item"><div class="label">Problem</div><p>Different people create different-looking emails, slides, and posts.</p></div>
+          <div class="copy-item"><div class="label">AI Process</div><p>Share brand guidelines, identity, voice, and requirements and generate materials that follow them automatically.</p></div>
+          <div class="copy-item"><div class="label">Why This Works</div><p>Anyone can create clean, on-brand materials.</p></div>
+          <div class="copy-item"><div class="label">Tools</div><p class="tools">ChatGPT · Claude · Canva · Google Docs / Slides</p></div>
+          <div class="copy-item"><div class="label">Value</div><p class="value">Less rework, stronger brand consistency, less training required across various software.</p></div>
+        </div>
+      </div>
+      <div class="demo-shell">
+        <div class="demo-top"><span class="demo-label">View Example</span><a class="open-link" href="Ex_Ai_Brand_Alignment_S4.html">Open full</a></div>
+        <div class="frame-wrap"><iframe src="Ex_Ai_Brand_Alignment_S4.html"></iframe></div>
+      </div>
+    </section>
 
-        <a class="card" href="Ex_Messy_Data_Ai_AdHoc_S1.html">
-          <div class="num">Section 01</div>
-          <div class="title">Messy Data → Reporting</div>
-          <div class="desc">Raw exports cleaned into charts and executive-ready reporting.</div>
-        </a>
+    <section class="section">
+      <div>
+        <h2 class="section-title">5. Accurate Mockups Before You Build Anything</h2>
+        <div class="copy-block">
+          <div class="copy-item"><div class="label">Problem</div><p>Ideas are hard to explain and often misunderstood before they’re built.</p></div>
+          <div class="copy-item"><div class="label">AI Process</div><p>Use AI to generate full previews like landing pages, emails, and ads.</p></div>
+          <div class="copy-item"><div class="label">Why This Works</div><p>People can see the idea before time is spent building it.</p></div>
+          <div class="copy-item"><div class="label">Tools</div><p class="tools">ChatGPT · Claude · HTML previews · Claude Design · Pencil · Canva</p></div>
+          <div class="copy-item"><div class="label">Value</div><p class="value">Faster approvals, less wasted effort, better quality materials.</p></div>
+        </div>
+      </div>
+      <div class="demo-shell">
+        <div class="demo-top"><span class="demo-label">View Example</span><a class="open-link" href="Ex_Ai_Assisted_Design_Mock-Ups_S5.html">Open full</a></div>
+        <div class="frame-wrap"><iframe src="Ex_Ai_Assisted_Design_Mock-Ups_S5.html"></iframe></div>
+      </div>
+    </section>
 
-        <a class="card" href="Ex_Ai_Query_Data_On_Demand_S2.html">
-          <div class="num">Section 02</div>
-          <div class="title">Data Q&A</div>
-          <div class="desc">Ask plain-English questions and get answers instantly.</div>
-        </a>
+    <section class="section">
+      <div>
+        <h2 class="section-title">6. Interactive Experiences Instead of Static Files</h2>
+        <div class="copy-block">
+          <div class="copy-item"><div class="label">Problem</div><p>Most marketing materials are passive: slides, PDFs, emails.</p></div>
+          <div class="copy-item"><div class="label">AI Process</div><p>Create simple interactive tools like calculators, guided flows, or mini-sites.</p></div>
+          <div class="copy-item"><div class="label">Why This Works</div><p>People engage more when they can interact. It also demonstrates hands-on product experiences.</p></div>
+          <div class="copy-item"><div class="label">Tools</div><p class="tools">ChatGPT · Claude · Framer · basic web tools</p></div>
+          <div class="copy-item"><div class="label">Value</div><p class="value">Higher engagement and better conversion, quicker demonstration and approvals, more complex storytelling.</p></div>
+        </div>
+      </div>
+      <div class="demo-shell">
+        <div class="demo-top"><span class="demo-label">View Example</span><a class="open-link" href="Ex_Interactive_Ai_Experiences_S6.html">Open full</a></div>
+        <div class="frame-wrap"><iframe src="Ex_Interactive_Ai_Experiences_S6.html"></iframe></div>
+      </div>
+    </section>
 
-        <a class="card" href="Ex_Team_Ai_Skill_Library_S3.html">
-          <div class="num">Section 03</div>
-          <div class="title">Skill Library</div>
-          <div class="desc">Reusable prompts and workflows for consistent output.</div>
-        </a>
+    <section class="section">
+      <div>
+        <h2 class="section-title">7. Centralized Knowledge</h2>
+        <div class="copy-block">
+          <div class="copy-item"><div class="label">Problem</div><p>Important information is spread across documents, emails, and people. New employees and team members struggle to find clear answers.</p></div>
+          <div class="copy-item"><div class="label">AI Process</div><p>Store key documents in one place and use AI to answer questions across them instantly.</p></div>
+          <div class="copy-item"><div class="label">Why This Works</div><p>People can ask questions and get clear answers without digging through files or waiting on someone else.</p></div>
+          <div class="copy-item"><div class="label">Tools</div><p class="tools">Google Docs · Notion · Claude · ChatGPT · Chatbase</p></div>
+          <div class="copy-item"><div class="label">Value</div><p class="value">Faster onboarding, less confusion, quicker decisions.</p></div>
+        </div>
+      </div>
+      <div class="demo-shell">
+        <div class="demo-top"><span class="demo-label">View Example</span><a class="open-link" href="Ex_Ai_Business_Knowledgebase_S7.html">Open full</a></div>
+        <div class="frame-wrap"><iframe src="Ex_Ai_Business_Knowledgebase_S7.html"></iframe></div>
+      </div>
+    </section>
 
-        <a class="card" href="Ex_Ai_Brand_Alignment_S4.html">
-          <div class="num">Section 04</div>
-          <div class="title">Brand Output</div>
-          <div class="desc">Generate on-brand content automatically.</div>
-        </a>
-
-        <a class="card" href="Ex_Ai_Assisted_Design_Mock-Ups_S5.html">
-          <div class="num">Section 05</div>
-          <div class="title">Mockups Before Build</div>
-          <div class="desc">Turn ideas into full visual previews before production.</div>
-        </a>
-
-        <a class="card" href="Ex_Interactive_Ai_Experiences_S6.html">
-          <div class="num">Section 06</div>
-          <div class="title">Interactive Experiences</div>
-          <div class="desc">Planning tools instead of static documents.</div>
-        </a>
-
-        <a class="card" href="Ex_Ai_Business_Knowledgebase_S7.html">
-          <div class="num">Section 07</div>
-          <div class="title">Knowledge System</div>
-          <div class="desc">Ask questions across internal docs and systems.</div>
-        </a>
-
-        <a class="card" href="Ex_Ai_Meeting-to-Task_Automation_S8.html">
-          <div class="num">Section 08</div>
-          <div class="title">Meetings → Tasks</div>
-          <div class="desc">Turn meetings into summaries, tasks, and notifications.</div>
-        </a>
-
+    <section class="section">
+      <div>
+        <h2 class="section-title">8. Meetings → Notes → Tasks</h2>
+        <div class="copy-block">
+          <div class="copy-item"><div class="label">Problem</div><p>Meetings happen, but notes are messy and action items get lost or forgotten.</p></div>
+          <div class="copy-item"><div class="label">AI Process</div><p>Use AI to transcribe meetings, summarize key points, pull out action items, turn them into tasks, and notify the right people automatically.</p></div>
+          <div class="copy-item"><div class="label">Why This Works</div><p>Nothing gets missed. Everyone knows what to do next without extra follow-up.</p></div>
+          <div class="copy-item"><div class="label">Tools</div><p class="tools">Zoom / Google Meet · Otter / Fireflies · ChatGPT / Claude · Slack · Asana / ClickUp</p></div>
+          <div class="copy-item"><div class="label">Value</div><p class="value">Fewer missed tasks, clearer ownership, faster follow-through.</p></div>
+        </div>
+      </div>
+      <div class="demo-shell">
+        <div class="demo-top"><span class="demo-label">View Example</span><a class="open-link" href="Ex_Ai_Meeting-to-Task_Automation_S8.html">Open full</a></div>
+        <div class="frame-wrap"><iframe src="Ex_Ai_Meeting-to-Task_Automation_S8.html"></iframe></div>
       </div>
     </section>
 
     <div class="footer">
       Built as a practical AI activation demo for marketing teams.
     </div>
-
   </main>
 </body>
 </html>
