@@ -1,20 +1,223 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>AI Marketing Demo</title>
-</head>
-<body style="font-family: Arial; padding: 40px;">
-  <h1>Practical AI for Marketing Teams</h1>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Practical AI for Marketing Teams</title>
 
-  <ul>
-    <li><a href="Ex_Messy_Data_Ai_AdHoc_S1.html">Messy Data → Reporting</a></li>
-    <li><a href="Ex_Ai_Query_Data_On_Demand_S2.html">Data Q&A</a></li>
-    <li><a href="Ex_Team_Ai_Skill_Library_S3.html">Skill Library</a></li>
-    <li><a href="Ex_Ai_Brand_Alignment_S4.html">Brand Output</a></li>
-    <li><a href="Ex_Ai_Assisted_Design_Mock-Ups_S5.html">Mockups</a></li>
-    <li><a href="Ex_Interactive_Ai_Experiences_S6.html">Interactive</a></li>
-    <li><a href="Ex_Ai_Business_Knowledgebase_S7.html">Knowledge</a></li>
-    <li><a href="Ex_Ai_Meeting-to-Task_Automation_S8.html">Meetings → Tasks</a></li>
-  </ul>
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      margin: 0;
+      background: #0f0f0f;
+      color: #c8c8c8;
+      font-family: 'Inter', Arial, sans-serif;
+      line-height: 1.6;
+    }
+
+    .page {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 80px 28px;
+    }
+
+    .eyebrow {
+      color: #d07010;
+      font-size: 11px;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+
+    h1 {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 44px;
+      font-weight: 700;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      margin: 0 0 20px;
+      color: #f2f2f2;
+    }
+
+    .intro {
+      font-size: 17px;
+      color: #9a9a9a;
+      max-width: 760px;
+      margin-bottom: 48px;
+    }
+
+    .section {
+      border-top: 1px solid #222;
+      padding: 28px 0;
+    }
+
+    h2 {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 20px;
+      font-weight: 600;
+      color: #f0f0f0;
+      margin: 0 0 14px;
+    }
+
+    p {
+      margin: 0;
+      font-size: 15px;
+      color: #a0a0a0;
+    }
+
+    .principle {
+      background: #141414;
+      border-left: 3px solid #d07010;
+      padding: 18px 20px;
+      margin-top: 12px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 14px;
+      margin-top: 20px;
+    }
+
+    .card {
+      display: block;
+      text-decoration: none;
+      background: #141414;
+      border: 1px solid #222;
+      padding: 18px;
+      transition: border-color .15s ease, transform .15s ease;
+    }
+
+    .card:hover {
+      border-color: #d07010;
+      transform: translateY(-2px);
+    }
+
+    .card .num {
+      color: #d07010;
+      font-size: 10px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .card .title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 16px;
+      font-weight: 600;
+      color: #f0f0f0;
+      margin-bottom: 6px;
+    }
+
+    .card .desc {
+      font-size: 13px;
+      color: #666;
+    }
+
+    .footer {
+      border-top: 1px solid #222;
+      margin-top: 40px;
+      padding-top: 24px;
+      color: #555;
+      font-size: 13px;
+    }
+  </style>
+</head>
+
+<body>
+  <main class="page">
+
+    <div class="eyebrow">AI Marketing Demo System</div>
+
+    <h1>Practical AI for Marketing Teams</h1>
+
+    <p class="intro">
+      Mocked-up, working AI use cases for marketing teams. No theory. Each example shows a business problem, the AI-supported process, and a usable output.
+    </p>
+
+    <section class="section">
+      <h2>What This Covers</h2>
+      <p>
+        Data cleaning, executive reporting, on-demand analysis, segmentation, campaign generation, interactive planning tools, internal knowledge systems, and meeting-to-task automation.
+      </p>
+    </section>
+
+    <section class="section">
+      <h2>Key Principle</h2>
+      <div class="principle">
+        All outputs are generated using existing data, without new systems, without heavy cleanup, and without dedicated analytics or IT resources.
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>What It Replaces</h2>
+      <p>
+        Manual reporting, fragmented tools, and slow execution cycles — replaced with fast, structured, high-quality outputs generated on demand.
+      </p>
+    </section>
+
+    <section class="section">
+      <h2>Open Working Examples</h2>
+
+      <div class="grid">
+
+        <a class="card" href="Ex_Messy_Data_Ai_AdHoc_S1.html">
+          <div class="num">Section 01</div>
+          <div class="title">Messy Data → Reporting</div>
+          <div class="desc">Raw exports cleaned into charts and executive-ready reporting.</div>
+        </a>
+
+        <a class="card" href="Ex_Ai_Query_Data_On_Demand_S2.html">
+          <div class="num">Section 02</div>
+          <div class="title">Data Q&A</div>
+          <div class="desc">Ask plain-English questions and get answers instantly.</div>
+        </a>
+
+        <a class="card" href="Ex_Team_Ai_Skill_Library_S3.html">
+          <div class="num">Section 03</div>
+          <div class="title">Skill Library</div>
+          <div class="desc">Reusable prompts and workflows for consistent output.</div>
+        </a>
+
+        <a class="card" href="Ex_Ai_Brand_Alignment_S4.html">
+          <div class="num">Section 04</div>
+          <div class="title">Brand Output</div>
+          <div class="desc">Generate on-brand content automatically.</div>
+        </a>
+
+        <a class="card" href="Ex_Ai_Assisted_Design_Mock-Ups_S5.html">
+          <div class="num">Section 05</div>
+          <div class="title">Mockups Before Build</div>
+          <div class="desc">Turn ideas into full visual previews before production.</div>
+        </a>
+
+        <a class="card" href="Ex_Interactive_Ai_Experiences_S6.html">
+          <div class="num">Section 06</div>
+          <div class="title">Interactive Experiences</div>
+          <div class="desc">Planning tools instead of static documents.</div>
+        </a>
+
+        <a class="card" href="Ex_Ai_Business_Knowledgebase_S7.html">
+          <div class="num">Section 07</div>
+          <div class="title">Knowledge System</div>
+          <div class="desc">Ask questions across internal docs and systems.</div>
+        </a>
+
+        <a class="card" href="Ex_Ai_Meeting-to-Task_Automation_S8.html">
+          <div class="num">Section 08</div>
+          <div class="title">Meetings → Tasks</div>
+          <div class="desc">Turn meetings into summaries, tasks, and notifications.</div>
+        </a>
+
+      </div>
+    </section>
+
+    <div class="footer">
+      Built as a practical AI activation demo for marketing teams.
+    </div>
+
+  </main>
 </body>
 </html>
