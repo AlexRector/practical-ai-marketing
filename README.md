@@ -18,7 +18,7 @@ All outputs are generated using existing data, without new systems, without heav
 
 ## What It Replaces
 
-Manual reporting, fragmented tools, and slow execution cycles — with fast, structured, high-quality outputs generated on demand.
+Manual reporting, fragmented tools, and slow execution cycles - with fast, structured, high-quality outputs generated on demand.
 
 ---
 
